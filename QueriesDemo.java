@@ -1,7 +1,14 @@
-// TODO
+// Class QueriesDemo.java
+// 
+// Demonstrates queries performed on a freshly initialized Oracle Database
 //
-// Try to get this working remotely
-// Create readme to explain how to set up i.e. include ojdbc7.jar in 'export CLASSPATH="" '
+// ----------------
+//
+// How to compile from command line:
+// javac -cp ".\ojdbc7.jar;." QueriesDemo.java
+//
+// How to execute from command line:
+// java -cp ".\ojdbc7.jar;." QueriesDemo <db-login-name> <db-password>
 
 
 import java.sql.*;
@@ -34,25 +41,18 @@ public class QueriesDemo {
 		ResultSet rset 		= null;
 
 		try{
-			//Class.forName("oracle.jdbc.driver.OracleDriver");
-			
 			db = new OracleDataSource();
 			db.setURL("jdbc:oracle:thin:@//dbsvcs.cs.uno.edu:1521/ORCL.CS.UNO.EDU");
 			db.setUser(username);
 			db.setPassword(password);
 			conn = db.getConnection();
-			
-			
-			/*
-			conn = DriverManager.getConnection(
-				"jdbc:oracle:thin:@//localhost:1521/SYS$USERS",
-				username, password);
-			*/
 
 			stmt = conn.createStatement();
 
+			// This is an example query, this will be replaced with your queries, each located in its own method
 			rset = stmt.executeQuery("select first_name from person");
 
+			// This is an example of displaying query results, this will be handled by a display method
 			while(rset.next()) {
 				System.out.println(rset.getString("first_name"));
 			}
@@ -63,9 +63,6 @@ public class QueriesDemo {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return;
-		}/* catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}*/
-
+		}
 	}
 }
