@@ -37,7 +37,7 @@ public class QueriesDemo {
 			//Class.forName("oracle.jdbc.driver.OracleDriver");
 			
 			db = new OracleDataSource();
-			db.setURL("jdbc:oracle:thin:@//localhost:1521/ORCL.CS.UNO.EDU");
+			db.setURL("jdbc:oracle:thin:@//dbsvcs.cs.uno.edu:1521/ORCL.CS.UNO.EDU");
 			db.setUser(username);
 			db.setPassword(password);
 			conn = db.getConnection();
