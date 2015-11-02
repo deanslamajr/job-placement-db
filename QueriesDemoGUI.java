@@ -6,6 +6,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JButton;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
 
 public class QueriesDemoGUI extends JFrame {
   
@@ -50,24 +56,35 @@ public class QueriesDemoGUI extends JFrame {
   private JPanel lowerPanel;
   private JButton updateButton;
   private JButton exitButton;
+  private ButtonClickHandler buttonClickHandler;
+
+  private JLabel queryProblemLabel;
+  private JLabel chooseDependentVariableLabel;
+  private JLabel queryLabel;
+
+  private BufferedReader buffReader;
 
   public QueriesDemoGUI() {
     super("QueriesDemoGUI");
 
-    ButtonClickHandler buttonClickHandler = new ButtonClickHandler();
+    drawMainMenu();
+  }
+
+  void drawMainMenu() {
+    buttonClickHandler = new ButtonClickHandler();
 
     setLayout(new GridLayout( 8, 1) );
 
-    mainTitle = new JLabel("Queries Demo");
+    mainTitle = new JLabel("Queries Demo Main Menu");
     add(mainTitle);
 
     // Build and add first row of query buttons
-    query1Button = new JButton( " 1 " );
+    query1Button = new JButton( "1" );
     query1Button.addActionListener(buttonClickHandler);
-    query2Button = new JButton( " 2 " );
-    query3Button = new JButton( " 3 " );
-    query4Button = new JButton( " 4 " );
-    query5Button = new JButton( " 5 " );
+    query2Button = new JButton( "2" );
+    query3Button = new JButton( "3" );
+    query4Button = new JButton( "4" );
+    query5Button = new JButton( "5" );
     queriesRow1 = new JPanel();
     queriesRow1.add(query1Button);
     queriesRow1.add(query2Button);
@@ -154,10 +171,55 @@ public class QueriesDemoGUI extends JFrame {
     lowerPanel.add(updateButton);
     lowerPanel.add(exitButton);
     add(lowerPanel);
+
+    revalidate();
+    repaint();
   }
 
   void drawQueryPerformScreen(String whichQuery) {
-    System.out.println("Query " + whichQuery + " clicked!");
+    getContentPane().removeAll();
+
+    setLayout(new GridLayout( 5, 1) );
+
+    mainTitle = new JLabel("Query " + whichQuery);
+    add(mainTitle);
+
+    ArrayList<String> queryData = new ArrayList<>(3);
+
+    File queryFile = new File("./queries/" + whichQuery);
+
+    try {
+      buffReader = new BufferedReader(new FileReader(queryFile));
+
+      StringBuilder partiallyLoadedQueryData = new StringBuilder();
+      String line = buffReader.readLine();
+      while (line != null) {
+        while(!line.matches("!!!")){
+          partiallyLoadedQueryData.append(line);
+          partiallyLoadedQueryData.append(System.lineSeparator());
+          line = buffReader.readLine();
+        }
+        queryData.add(partiallyLoadedQueryData.toString());
+        partiallyLoadedQueryData = new StringBuilder();
+        line = buffReader.readLine();
+      }
+    } catch(FileNotFoundException e) {
+      e.printStackTrace();
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
+
+    queryProblemLabel = new JLabel(queryData.get(0));
+    add(queryProblemLabel);
+
+    chooseDependentVariableLabel = new JLabel(queryData.get(1));
+    add(chooseDependentVariableLabel);
+
+    queryLabel = new JLabel(queryData.get(2));
+    add(queryLabel);
+
+    revalidate();
+    repaint();
   }
 
   private class ButtonClickHandler implements ActionListener
