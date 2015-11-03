@@ -1,3 +1,5 @@
+import java.sql.*;
+import oracle.jdbc.pool.OracleDataSource;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
@@ -6,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -61,11 +64,19 @@ public class QueriesDemoGUI extends JFrame {
   private JLabel queryProblemLabel;
   private JLabel chooseDependentVariableLabel;
   private JLabel queryLabel;
+  private JPanel queryQuestionPanel;
+  private JComboBox<String> queryQuestionsComboBox;
 
   private BufferedReader buffReader;
 
-  public QueriesDemoGUI() {
+  private String username;
+  private String password;
+
+  public QueriesDemoGUI(String username, String password) {
     super("QueriesDemoGUI");
+
+    this.username = username;
+    this.password = password;
 
     drawMainMenu();
   }
@@ -82,6 +93,7 @@ public class QueriesDemoGUI extends JFrame {
     query1Button = new JButton( "1" );
     query1Button.addActionListener(buttonClickHandler);
     query2Button = new JButton( "2" );
+    query2Button.addActionListener(buttonClickHandler);
     query3Button = new JButton( "3" );
     query4Button = new JButton( "4" );
     query5Button = new JButton( "5" );
@@ -184,6 +196,7 @@ public class QueriesDemoGUI extends JFrame {
     mainTitle = new JLabel("Query " + whichQuery);
     add(mainTitle);
 
+
     ArrayList<String> queryData = new ArrayList<>(3);
 
     File queryFile = new File("./queries/" + whichQuery);
@@ -196,7 +209,7 @@ public class QueriesDemoGUI extends JFrame {
       while (line != null) {
         while(!line.matches("!!!")){
           partiallyLoadedQueryData.append(line);
-          partiallyLoadedQueryData.append(System.lineSeparator());
+          partiallyLoadedQueryData.append(" ");
           line = buffReader.readLine();
         }
         queryData.add(partiallyLoadedQueryData.toString());
@@ -207,19 +220,66 @@ public class QueriesDemoGUI extends JFrame {
       e.printStackTrace();
     } catch(IOException e) {
       e.printStackTrace();
-    }
-
+    }  
+    
     queryProblemLabel = new JLabel(queryData.get(0));
     add(queryProblemLabel);
 
+    queryQuestionPanel = new JPanel();
     chooseDependentVariableLabel = new JLabel(queryData.get(1));
-    add(chooseDependentVariableLabel);
 
-    queryLabel = new JLabel(queryData.get(2));
+    System.out.println(queryData.get(3));
+
+    ArrayList<String> results = executeQuery(queryData.get(2), queryData.get(3));
+    queryQuestionsComboBox = new JComboBox<>();
+    for(String aResult: results) {
+      queryQuestionsComboBox.addItem(aResult);
+    }
+    queryQuestionPanel.add(chooseDependentVariableLabel);
+    queryQuestionPanel.add(queryQuestionsComboBox);
+    add(queryQuestionPanel);
+
+    queryLabel = new JLabel(queryData.get(4));
     add(queryLabel);
 
     revalidate();
     repaint();
+  }
+
+    ArrayList<String> executeQuery(String query, String resultAttribute) {
+
+    OracleDataSource db       = null;
+    Connection conn           = null;
+    Statement stmt            = null;
+    ResultSet rset            = null;
+    ArrayList<String> results = new ArrayList<>();
+
+    // Trim non alphabetic characters from resultAttribute
+    String interestedAttribute = resultAttribute.replaceAll("[^a-zA-Z]+", "");
+
+    try{
+      db = new OracleDataSource();
+      db.setURL("jdbc:oracle:thin:@//dbsvcs.cs.uno.edu:1521/ORCL.CS.UNO.EDU");
+      db.setUser(username);
+      db.setPassword(password);
+      conn = db.getConnection();
+
+      stmt = conn.createStatement();
+
+      rset = stmt.executeQuery(query);
+
+      while(rset.next()) {
+        results.add(rset.getString(interestedAttribute));
+      }
+
+      stmt.close();
+      conn.close();
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    return results;
   }
 
   private class ButtonClickHandler implements ActionListener

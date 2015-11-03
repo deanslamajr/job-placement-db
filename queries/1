@@ -1,9 +1,15 @@
 List a company's workers by names.
 !!!
-select company_id from company;
+Choose a company:
+!!!
+select name from company
+!!!
+name
 !!!
 SELECT p.first_name || ' ' || p.last_name
-FROM job j
+FROM company c 
+LEFT OUTER JOIN job j ON c.company_id = j.company_id
 LEFT OUTER JOIN works w ON j.job_id = w.job_id 
 LEFT OUTER JOIN person p ON w.person_id = p.person_id
-WHERE j.company_id = 0;
+WHERE c.name =
+!!!

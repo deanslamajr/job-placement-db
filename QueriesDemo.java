@@ -36,13 +36,13 @@ public class QueriesDemo{
 		username = args[0];
 		password = args[1];
 
-		runGUI(userExperience);
+		runGUI(userExperience, username, password);
 
 		//runDemo(username, password);
 	}
 
-	public static void runGUI(QueriesDemoGUI gui) {
-		gui = new QueriesDemoGUI();
+	public static void runGUI(QueriesDemoGUI gui, String username, String password) {
+		gui = new QueriesDemoGUI(username, password);
 		gui.setResizable( false );
 		gui.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		gui.setSize( 700, 350 );
@@ -78,14 +78,14 @@ public class QueriesDemo{
 
 			stmt = conn.createStatement();
 
-			stmt.executeUpdate(setupSQLString);
+			//stmt.executeUpdate(setupSQLString);
 
 			// This is an example query, this will be replaced with your queries, each located in its own method
-			rset = stmt.executeQuery("select first_name from person");
+			rset = stmt.executeQuery("select name from company");
 
 			// This is an example of displaying query results, this will be handled by a display method
 			while(rset.next()) {
-				System.out.println(rset.getString("first_name"));
+				System.out.println(rset.getString("name"));
 			}
 
 			stmt.close();
