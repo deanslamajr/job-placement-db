@@ -9,6 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -61,11 +63,19 @@ public class QueriesDemoGUI extends JFrame {
   private JButton exitButton;
   private ButtonClickHandler buttonClickHandler;
 
+  private JPanel topStuffPanel;
   private JLabel queryProblemLabel;
   private JLabel chooseDependentVariableLabel;
   private JLabel queryLabel;
   private JPanel queryQuestionPanel;
   private JComboBox<String> queryQuestionsComboBox;
+  private JTextArea textArea;
+  private JScrollPane scroll;
+  private JPanel lowerButtonsPanel;
+  private JButton showQueryButton;
+  private JButton executeQueryButton;
+  private JButton goBackButton;
+  private ArrayList<String> queryData;
 
   private BufferedReader buffReader;
 
@@ -78,11 +88,13 @@ public class QueriesDemoGUI extends JFrame {
     this.username = username;
     this.password = password;
 
+    buttonClickHandler = new ButtonClickHandler();
+
     drawMainMenu();
   }
 
   void drawMainMenu() {
-    buttonClickHandler = new ButtonClickHandler();
+    getContentPane().removeAll();
 
     setLayout(new GridLayout( 8, 1) );
 
@@ -189,15 +201,19 @@ public class QueriesDemoGUI extends JFrame {
   }
 
   void drawQueryPerformScreen(String whichQuery) {
+    setSize( 500, 750 );
+
     getContentPane().removeAll();
 
-    setLayout(new GridLayout( 5, 1) );
+    setLayout(new GridLayout( 2, 1) );
+    topStuffPanel = new JPanel();
+    topStuffPanel.setLayout(new GridLayout( 4, 1));
 
     mainTitle = new JLabel("Query " + whichQuery);
-    add(mainTitle);
+    topStuffPanel.add(mainTitle);
 
 
-    ArrayList<String> queryData = new ArrayList<>(3);
+    queryData = new ArrayList<>(7);
 
     File queryFile = new File("./queries/" + whichQuery);
 
@@ -223,12 +239,10 @@ public class QueriesDemoGUI extends JFrame {
     }  
     
     queryProblemLabel = new JLabel(queryData.get(0));
-    add(queryProblemLabel);
+    topStuffPanel.add(queryProblemLabel);
 
     queryQuestionPanel = new JPanel();
     chooseDependentVariableLabel = new JLabel(queryData.get(1));
-
-    System.out.println(queryData.get(3));
 
     ArrayList<String> results = executeQuery(queryData.get(2), queryData.get(3));
     queryQuestionsComboBox = new JComboBox<>();
@@ -237,10 +251,26 @@ public class QueriesDemoGUI extends JFrame {
     }
     queryQuestionPanel.add(chooseDependentVariableLabel);
     queryQuestionPanel.add(queryQuestionsComboBox);
-    add(queryQuestionPanel);
+    topStuffPanel.add(queryQuestionPanel);
 
-    queryLabel = new JLabel(queryData.get(4));
-    add(queryLabel);
+    lowerPanel = new JPanel();
+    showQueryButton = new JButton("Show Query");
+    showQueryButton.addActionListener(buttonClickHandler);
+    executeQueryButton = new JButton("Execute Query");
+    executeQueryButton.addActionListener(buttonClickHandler);
+    goBackButton = new JButton("Go Back To Main Menu");
+    goBackButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(showQueryButton);
+    lowerPanel.add(executeQueryButton);
+    lowerPanel.add(goBackButton);
+    topStuffPanel.add(lowerPanel);
+
+    add(topStuffPanel);
+
+    textArea = new JTextArea ();
+    textArea.setEditable(false);
+    scroll = new JScrollPane (textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+    add(scroll);
 
     revalidate();
     repaint();
@@ -282,6 +312,49 @@ public class QueriesDemoGUI extends JFrame {
     return results;
   }
 
+  ArrayList<String> executePreparedStatement(String query, String[] setters, String selectString) {
+
+    OracleDataSource db       = null;
+    Connection conn           = null;
+    PreparedStatement pStmt   = null;
+    ResultSet rset            = null;
+    ArrayList<String> results = new ArrayList<>();
+
+    // Trim non alphabetic characters from resultAttribute
+    selectString = selectString.replaceAll("[^a-zA-Z]+", "");
+
+    try{
+      db = new OracleDataSource();
+      db.setURL("jdbc:oracle:thin:@//dbsvcs.cs.uno.edu:1521/ORCL.CS.UNO.EDU");
+      db.setUser(username);
+      db.setPassword(password);
+      conn = db.getConnection();
+
+      pStmt = conn.prepareStatement(query);
+      for(int whichSetter = 1; whichSetter<=setters.length; whichSetter++) {
+        pStmt.setString(whichSetter, setters[whichSetter-1]);
+      }
+
+      rset = pStmt.executeQuery();
+
+      ResultSetMetaData rSMD = rset.getMetaData();
+      int columnsNumber = rSMD.getColumnCount();
+      System.out.println(columnsNumber);
+
+      while(rset.next()) {
+        results.add(rset.getString(1));
+      }
+
+      pStmt.close();
+      conn.close();
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    return results;
+  }
+
   private class ButtonClickHandler implements ActionListener
   {
     public void actionPerformed( ActionEvent event )
@@ -294,6 +367,34 @@ public class QueriesDemoGUI extends JFrame {
       else if(buttonThatWasClicked.getText() == "UPDATE DB") {
         System.out.println("This is not yet implemented!");
       } 
+      else if(buttonThatWasClicked.getText() == "Show Query") {
+        textArea.setText(queryData.get(4));
+      }
+      else if(buttonThatWasClicked.getText() == "Execute Query") {
+        int numberOfComboBoxes = 1;
+        try {
+          numberOfComboBoxes = Integer.parseInt(queryData.get(6).trim());
+        }
+        catch(NumberFormatException e) {
+          e.printStackTrace();
+        }
+        String[] comboBoxResults = new String[numberOfComboBoxes];
+
+        // TODO: abstract this to include N combobox datums
+        comboBoxResults[0] = (String)queryQuestionsComboBox.getSelectedItem();
+
+        ArrayList<String> queryResults = executePreparedStatement(queryData.get(4), comboBoxResults, queryData.get(5));
+
+        textArea.setText(null);
+
+        for(String aResult: queryResults) {
+          aResult += "\n";
+          textArea.append(aResult);
+        }
+      }
+      else if(buttonThatWasClicked.getText() == "Go Back To Main Menu") {
+        drawMainMenu();
+      }
       else {
         drawQueryPerformScreen(buttonThatWasClicked.getText());
       }

@@ -11,5 +11,9 @@ FROM company c
 LEFT OUTER JOIN job j ON c.company_id = j.company_id
 LEFT OUTER JOIN works w ON j.job_id = w.job_id 
 LEFT OUTER JOIN person p ON w.person_id = p.person_id
-WHERE c.name =
+WHERE c.name = ?
+!!!
+p.first_name || ' ' || p.last_name
+!!!
+1
 !!!

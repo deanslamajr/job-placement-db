@@ -45,7 +45,7 @@ public class QueriesDemo{
 		gui = new QueriesDemoGUI(username, password);
 		gui.setResizable( false );
 		gui.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-		gui.setSize( 700, 350 );
+		gui.setSize( 500, 750 );
 		gui.setVisible( true );
 	}
 
