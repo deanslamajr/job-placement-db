@@ -312,16 +312,13 @@ public class QueriesDemoGUI extends JFrame {
     return results;
   }
 
-  ArrayList<String> executePreparedStatement(String query, String[] setters, String selectString) {
+  ArrayList<String> executePreparedStatement(String query, String[] setters, int numberOfValuesToBeSet) {
 
     OracleDataSource db       = null;
     Connection conn           = null;
     PreparedStatement pStmt   = null;
     ResultSet rset            = null;
     ArrayList<String> results = new ArrayList<>();
-
-    // Trim non alphabetic characters from resultAttribute
-    selectString = selectString.replaceAll("[^a-zA-Z]+", "");
 
     try{
       db = new OracleDataSource();
@@ -331,15 +328,15 @@ public class QueriesDemoGUI extends JFrame {
       conn = db.getConnection();
 
       pStmt = conn.prepareStatement(query);
-      for(int whichSetter = 1; whichSetter<=setters.length; whichSetter++) {
-        pStmt.setString(whichSetter, setters[whichSetter-1]);
+      for(int whichSetter = 1; whichSetter<=numberOfValuesToBeSet; whichSetter++) {
+        // TODO: allow for more than one setters value
+        pStmt.setString(whichSetter, setters[0]);
       }
 
       rset = pStmt.executeQuery();
 
       ResultSetMetaData rSMD = rset.getMetaData();
       int columnsNumber = rSMD.getColumnCount();
-      System.out.println(columnsNumber);
 
       while(rset.next()) {
         results.add(rset.getString(1));
@@ -371,19 +368,19 @@ public class QueriesDemoGUI extends JFrame {
         textArea.setText(queryData.get(4));
       }
       else if(buttonThatWasClicked.getText() == "Execute Query") {
-        int numberOfComboBoxes = 1;
+        int numberOfQueryValuesToBeSet = 1;
         try {
-          numberOfComboBoxes = Integer.parseInt(queryData.get(6).trim());
+          numberOfQueryValuesToBeSet = Integer.parseInt(queryData.get(5).trim());
         }
         catch(NumberFormatException e) {
           e.printStackTrace();
         }
-        String[] comboBoxResults = new String[numberOfComboBoxes];
 
         // TODO: abstract this to include N combobox datums
+        String[] comboBoxResults = new String[1];
         comboBoxResults[0] = (String)queryQuestionsComboBox.getSelectedItem();
 
-        ArrayList<String> queryResults = executePreparedStatement(queryData.get(4), comboBoxResults, queryData.get(5));
+        ArrayList<String> queryResults = executePreparedStatement(queryData.get(4), comboBoxResults, numberOfQueryValuesToBeSet);
 
         textArea.setText(null);
 
