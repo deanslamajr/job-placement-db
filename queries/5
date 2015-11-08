@@ -1,16 +1,18 @@
 List all the workers who are working for a specific project.
 !!!
-Choose a project_id:
-!!!
-select project_id from project_job
-!!!
-1
-!!!
 SELECT p.first_name || ' ' || p.last_name AS name, p.person_id
 FROM project_job pj
 LEFT OUTER JOIN works w ON pj.job_id = w.job_id
 LEFT OUTER JOIN person p ON p.person_id = w.person_id
 WHERE pj.project_id = ? AND w.start_date < SYSDATE AND w.end_date IS NULL
+!!!
+1
+!!!
+1
+!!!
+Choose a project_id:
+!!!
+select project_id from project_job
 !!!
 1
 !!!

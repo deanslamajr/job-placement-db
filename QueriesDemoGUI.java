@@ -257,6 +257,17 @@ public class QueriesDemoGUI extends JFrame {
         }
         queryData.add(partiallyLoadedQueryData.toString());
         partiallyLoadedQueryData = new StringBuilder();
+        if(whichDataSet==COMBOBOXCOUNT) {
+          try {
+            numberOfComboBoxes = Integer.parseInt(queryData.get(COMBOBOXCOUNT).trim());
+          }
+          catch(NumberFormatException e) {
+            e.printStackTrace();
+          }
+          if(numberOfComboBoxes == 0) {
+            break;
+          }
+        }
         line = buffReader.readLine();
         whichDataSet++;
       }
@@ -273,13 +284,6 @@ public class QueriesDemoGUI extends JFrame {
     queryProblemLabel.setEditable(false);
     queryProblemLabel.setFocusable(false);
     topStuffPanel.add(queryProblemLabel);
-
-    try {
-      numberOfComboBoxes = Integer.parseInt(queryData.get(COMBOBOXCOUNT).trim());
-    }
-    catch(NumberFormatException e) {
-      e.printStackTrace();
-    }
 
     if(numberOfComboBoxes != 0) {
       queryQuestionPanel = new JPanel();

@@ -1,11 +1,5 @@
 List the skill gap of a worker between his/her job(s) and his/her skills.
 !!!
-Choose a person_id:
-!!!
-select person_id from person
-!!!
-1
-!!!
 SELECT ks.title, ks.ks_code, ks.description
 FROM
 (
@@ -21,5 +15,13 @@ WHERE person_id = ?
 ) ks_list
 LEFT OUTER JOIN knowledge_skill ks ON ks_list.ks_code = ks.ks_code
 !!!
-2
+1
+!!!
+1 1
+!!!
+Choose a person_id:
+!!!
+select person_id from person
+!!!
+1
 !!!

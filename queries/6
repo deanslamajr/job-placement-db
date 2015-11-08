@@ -1,15 +1,17 @@
 List a person’s knowledge/skills in a readable format.
 !!!
-Choose a person_id:
-!!!
-select person_id from person
-!!!
-1
-!!!
 SELECT title || ' (' || skill_level || ' level) ' || description
 FROM person_ks pks
 LEFT OUTER JOIN knowledge_skill ks ON pks.ks_code = ks.ks_code
 WHERE pks.person_id = ?
+!!!
+1
+!!!
+1
+!!!
+Choose a person_id:
+!!!
+select person_id from person
 !!!
 1
 !!!

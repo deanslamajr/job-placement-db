@@ -1,11 +1,5 @@
 List a company's staff by salary in descending order.
 !!!
-Choose a company:
-!!!
-select name from company
-!!!
-1
-!!!
 SELECT name
 FROM 
 (
@@ -25,5 +19,13 @@ WHERE c.name = ? AND j.pay_type = 'wage'
 )
 ORDER BY salary DESC
 !!!
-2
+1
+!!!
+1 1
+!!!
+Choose a company:
+!!!
+select name from company
+!!!
+1
 !!!
