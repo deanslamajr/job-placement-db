@@ -1,12 +1,15 @@
 <description of query>
 !!!
-<explanation of what the user needs to select>
-!!!
-<query to fill combobox>
-!!!
-<which column number (first column is 1) to parse from result of above>
-!!!
 <the actual query>
 !!!
-<number of ?'s in the above query>
+<number of comboBoxes>
 !!!
+<association of ?'s to comboBoxes: e.g. 1 2 1 would mean the first and third '?' correspond to the first box while the second '?' is mapped to the value of the second combobox>
+!!!
+<explanation of first comboBox>
+!!!
+<query to fill first combobox>
+!!!
+<column number (first column is 1) to parse result of first combobox query>
+!!!
+<<N-1 sets of the above three data rows where N = number of comboBoxes

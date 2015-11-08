@@ -65,10 +65,10 @@ public class QueriesDemoGUI extends JFrame {
 
   private JPanel topStuffPanel;
   private JTextArea queryProblemLabel;
-  private JLabel chooseDependentVariableLabel;
+  private ArrayList<JPanel> comboBoxPanels;
   private JLabel queryLabel;
   private JPanel queryQuestionPanel;
-  private JComboBox<String> queryQuestionsComboBox;
+  private ArrayList<JComboBox<String>> queryQuestionsComboBoxes;
   private JTextArea textArea;
   private JScrollPane scroll;
   private JPanel lowerButtonsPanel;
@@ -82,6 +82,18 @@ public class QueriesDemoGUI extends JFrame {
 
   private String username;
   private String password;
+
+  private int numberOfComboBoxes = 0;
+
+  // Query Data locations
+  private final int DESCRIPTION   = 0;
+  private final int QUERY         = 1;
+  private final int COMBOBOXCOUNT = 2;
+  private final int UNKNOWNSMAP   = 3;
+  private final int EXPLANATION   = 4;
+  private final int COMBOQUERY    = 5;
+  private final int COLUMNNUMBER  = 6;
+
 
   public QueriesDemoGUI(String username, String password) {
     super("QueriesDemoGUI");
@@ -129,6 +141,7 @@ public class QueriesDemoGUI extends JFrame {
     query8Button = new JButton( "8" );
     query8Button.addActionListener(buttonClickHandler);
     query9Button = new JButton( "9" );
+    query9Button.addActionListener(buttonClickHandler);
     query10Button = new JButton( "10" );
     queriesRow2 = new JPanel();
     queriesRow2.add(query6Button);
@@ -208,6 +221,9 @@ public class QueriesDemoGUI extends JFrame {
   }
 
   void drawQueryPerformScreen(String whichQuery) {
+    ArrayList<String> results;
+    int resultsColumnNumber = 1;
+
     setSize( 500, 750 );
 
     getContentPane().removeAll();
@@ -231,11 +247,10 @@ public class QueriesDemoGUI extends JFrame {
       String line = buffReader.readLine();
       int whichDataSet = 0;
       while (line != null) {
-        whichDataSet++;
         while(!line.matches("!!!")){
           partiallyLoadedQueryData.append(line);
           partiallyLoadedQueryData.append(" ");
-          if(whichDataSet==5) {
+          if(whichDataSet==QUERY) {
             queryDataForDisplay += line + "\n";
           }
           line = buffReader.readLine();
@@ -243,6 +258,7 @@ public class QueriesDemoGUI extends JFrame {
         queryData.add(partiallyLoadedQueryData.toString());
         partiallyLoadedQueryData = new StringBuilder();
         line = buffReader.readLine();
+        whichDataSet++;
       }
     } catch(FileNotFoundException e) {
       e.printStackTrace();
@@ -250,7 +266,7 @@ public class QueriesDemoGUI extends JFrame {
       e.printStackTrace();
     }  
 
-    queryProblemLabel = new JTextArea(queryData.get(0));
+    queryProblemLabel = new JTextArea(queryData.get(DESCRIPTION));
     queryProblemLabel.setWrapStyleWord(true);
     queryProblemLabel.setLineWrap(true);
     queryProblemLabel.setOpaque(false);
@@ -258,23 +274,41 @@ public class QueriesDemoGUI extends JFrame {
     queryProblemLabel.setFocusable(false);
     topStuffPanel.add(queryProblemLabel);
 
-    if(!queryData.get(1).matches("none.*")) {
-      int resultsColumnNumber = 1;
+    try {
+      numberOfComboBoxes = Integer.parseInt(queryData.get(COMBOBOXCOUNT).trim());
+    }
+    catch(NumberFormatException e) {
+      e.printStackTrace();
+    }
+
+    if(numberOfComboBoxes != 0) {
       queryQuestionPanel = new JPanel();
-      chooseDependentVariableLabel = new JLabel(queryData.get(1));
-      try{
-        resultsColumnNumber = Integer.parseInt(queryData.get(3).trim());
+      comboBoxPanels = new ArrayList<>(numberOfComboBoxes);
+      queryQuestionsComboBoxes = new ArrayList<>(numberOfComboBoxes);
+
+      for(int comboBoxIndex = 0; comboBoxIndex < numberOfComboBoxes; comboBoxIndex++) {
+        JPanel aComboBoxPanel = new JPanel();
+        aComboBoxPanel.add(new JLabel(queryData.get(EXPLANATION + (comboBoxIndex*3))));
+        try{
+          resultsColumnNumber = Integer.parseInt(queryData.get(COLUMNNUMBER + (comboBoxIndex*3)).trim());
+        }
+        catch(NumberFormatException e) {
+          e.printStackTrace();
+        }
+        results = executeQuery(queryData.get(COMBOQUERY + (comboBoxIndex*3)), resultsColumnNumber);
+        JComboBox<String> aComboBox = new JComboBox<>();
+        for(String aResult: results) {
+          aComboBox.addItem(aResult);
+        }
+        queryQuestionsComboBoxes.add(aComboBox);
+        aComboBoxPanel.add(aComboBox);
+        comboBoxPanels.add(aComboBoxPanel);
       }
-      catch(NumberFormatException e) {
-        e.printStackTrace();
+
+      for(int index = 0; index < numberOfComboBoxes; index++) {
+        queryQuestionPanel.add(comboBoxPanels.get(index));
       }
-      ArrayList<String> results = executeQuery(queryData.get(2), resultsColumnNumber);
-      queryQuestionsComboBox = new JComboBox<>();
-      for(String aResult: results) {
-        queryQuestionsComboBox.addItem(aResult);
-      }
-      queryQuestionPanel.add(chooseDependentVariableLabel);
-      queryQuestionPanel.add(queryQuestionsComboBox);
+
       topStuffPanel.add(queryQuestionPanel);
     }
 
@@ -342,7 +376,7 @@ public class QueriesDemoGUI extends JFrame {
     return results;
   }
 
-  ArrayList<String> executePreparedStatement(String query, String[] setters, int numberOfValuesToBeSet) {
+  ArrayList<String> executePreparedStatement(String query, String[] comboBoxValues, int[] settersMap) {
 
     OracleDataSource db       = null;
     Connection conn           = null;
@@ -360,9 +394,16 @@ public class QueriesDemoGUI extends JFrame {
       conn = db.getConnection();
 
       pStmt = conn.prepareStatement(query);
-      for(int whichSetter = 1; whichSetter<=numberOfValuesToBeSet; whichSetter++) {
-        // TODO: allow for more than one setters value
-        pStmt.setString(whichSetter, setters[0]);
+      if(comboBoxValues != null) {
+        for(int whichUnknown = 0; whichUnknown<settersMap.length; whichUnknown++) {
+          try {
+            int numberValueOfUknown = Integer.parseInt(comboBoxValues[(settersMap[whichUnknown]-1)].trim());
+            pStmt.setInt((whichUnknown+1), numberValueOfUknown);
+          }
+          catch(NumberFormatException e) {
+            pStmt.setString((whichUnknown+1), comboBoxValues[(settersMap[whichUnknown]-1)]);
+          }
+        }
       }
 
       rset = pStmt.executeQuery();
@@ -417,21 +458,30 @@ public class QueriesDemoGUI extends JFrame {
         textArea.setText(queryDataForDisplay);
       }
       else if(buttonThatWasClicked.getText() == "Execute Query") {
-        int numberOfQueryValuesToBeSet = 1;
-        try {
-          numberOfQueryValuesToBeSet = Integer.parseInt(queryData.get(5).trim());
-        }
-        catch(NumberFormatException e) {
-          e.printStackTrace();
+        String[] comboBoxResults = null;
+        int[] settersMap = null;
+
+        if(numberOfComboBoxes > 0) {
+          String[] settersMapTokens = queryData.get(UNKNOWNSMAP).split(" ");
+
+          settersMap = new int[settersMapTokens.length];
+          try {
+            for(int i = 0; i<settersMapTokens.length; i++) {
+              settersMap[i] = Integer.parseInt(settersMapTokens[i].trim());
+            }
+          }
+          catch(NumberFormatException e) {
+            e.printStackTrace();
+          }
+
+          comboBoxResults = new String[numberOfComboBoxes];
+          
+          for(int index = 0; index < numberOfComboBoxes; index++) {
+            comboBoxResults[index] = (String)queryQuestionsComboBoxes.get(index).getSelectedItem();
+          }
         }
 
-        // TODO: abstract this to include N combobox datums
-        String[] comboBoxResults = new String[1];
-        if(queryQuestionsComboBox != null) {
-          comboBoxResults[0] = (String)queryQuestionsComboBox.getSelectedItem();
-        }
-
-        ArrayList<String> queryResults = executePreparedStatement(queryData.get(4), comboBoxResults, numberOfQueryValuesToBeSet);
+        ArrayList<String> queryResults = executePreparedStatement(queryData.get(QUERY), comboBoxResults, settersMap);
 
         textArea.setText(null);
 

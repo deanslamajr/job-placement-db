@@ -1,0 +1,32 @@
+List a person’s missing knowledge/skills for a specific job in a readable format.
+!!!
+SELECT ks.title || ' (' || ks.skill_level || ' level) ' || ks.description AS missing
+FROM
+(
+SELECT jpks.ks_code
+FROM job j
+LEFT OUTER JOIN jp_ks jpks ON j.job_code = jpks.job_code
+WHERE j.job_id = ?
+MINUS
+SELECT ks_code
+FROM person_ks
+WHERE person_id = ?
+) ks_list
+LEFT OUTER JOIN knowledge_skill ks ON ks_list.ks_code = ks.ks_code
+!!!
+2
+!!!
+1 2
+!!!
+Choose a job_id:
+!!!
+select job_id from job
+!!!
+1
+!!!
+Choose a person_id:
+!!!
+select person_id from person
+!!!
+1
+!!!
