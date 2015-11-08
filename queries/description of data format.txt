@@ -1,0 +1,12 @@
+<description of query>
+!!!
+<explanation of what the user needs to select>
+!!!
+<query to fill combobox>
+!!!
+<which column number (first column is 1) to parse from result of above>
+!!!
+<the actual query>
+!!!
+<number of ?'s in the above query>
+!!!

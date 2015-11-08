@@ -1,7 +1,10 @@
 List companies' labor cost (total salaries and wage rates by 1920 hours) in descending order.
 !!!
+none
 !!!
+none
 !!!
+none
 !!!
 SELECT c.name, costs.company_id, SUM(costs.salary) AS laborCosts
 FROM 

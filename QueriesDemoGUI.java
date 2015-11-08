@@ -76,6 +76,7 @@ public class QueriesDemoGUI extends JFrame {
   private JButton executeQueryButton;
   private JButton goBackButton;
   private ArrayList<String> queryData;
+  private String queryDataForDisplay;
 
   private BufferedReader buffReader;
 
@@ -109,7 +110,9 @@ public class QueriesDemoGUI extends JFrame {
     query3Button = new JButton( "3" );
     query3Button.addActionListener(buttonClickHandler);
     query4Button = new JButton( "4" );
+    query4Button.addActionListener(buttonClickHandler);
     query5Button = new JButton( "5" );
+    query5Button.addActionListener(buttonClickHandler);
     queriesRow1 = new JPanel();
     queriesRow1.add(query1Button);
     queriesRow1.add(query2Button);
@@ -119,10 +122,13 @@ public class QueriesDemoGUI extends JFrame {
     add(queriesRow1);
 
     // Build and add second row of query buttons
-    query6Button = new JButton( " 6 " );
-    query7Button = new JButton( " 7 " );
-    query8Button = new JButton( " 8 " );
-    query9Button = new JButton( " 9 " );
+    query6Button = new JButton( "6" );
+    query6Button.addActionListener(buttonClickHandler);
+    query7Button = new JButton( "7" );
+    query7Button.addActionListener(buttonClickHandler);
+    query8Button = new JButton( "8" );
+    query8Button.addActionListener(buttonClickHandler);
+    query9Button = new JButton( "9" );
     query10Button = new JButton( "10" );
     queriesRow2 = new JPanel();
     queriesRow2.add(query6Button);
@@ -213,8 +219,8 @@ public class QueriesDemoGUI extends JFrame {
     mainTitle = new JLabel("Query " + whichQuery);
     topStuffPanel.add(mainTitle);
 
-
     queryData = new ArrayList<>(7);
+    queryDataForDisplay = "";
 
     File queryFile = new File("./queries/" + whichQuery);
 
@@ -223,10 +229,15 @@ public class QueriesDemoGUI extends JFrame {
 
       StringBuilder partiallyLoadedQueryData = new StringBuilder();
       String line = buffReader.readLine();
+      int whichDataSet = 0;
       while (line != null) {
+        whichDataSet++;
         while(!line.matches("!!!")){
           partiallyLoadedQueryData.append(line);
           partiallyLoadedQueryData.append(" ");
+          if(whichDataSet==5) {
+            queryDataForDisplay += line + "\n";
+          }
           line = buffReader.readLine();
         }
         queryData.add(partiallyLoadedQueryData.toString());
@@ -238,7 +249,7 @@ public class QueriesDemoGUI extends JFrame {
     } catch(IOException e) {
       e.printStackTrace();
     }  
-    
+
     queryProblemLabel = new JTextArea(queryData.get(0));
     queryProblemLabel.setWrapStyleWord(true);
     queryProblemLabel.setLineWrap(true);
@@ -247,17 +258,25 @@ public class QueriesDemoGUI extends JFrame {
     queryProblemLabel.setFocusable(false);
     topStuffPanel.add(queryProblemLabel);
 
-    queryQuestionPanel = new JPanel();
-    chooseDependentVariableLabel = new JLabel(queryData.get(1));
-
-    ArrayList<String> results = executeQuery(queryData.get(2), queryData.get(3));
-    queryQuestionsComboBox = new JComboBox<>();
-    for(String aResult: results) {
-      queryQuestionsComboBox.addItem(aResult);
+    if(!queryData.get(1).matches("none.*")) {
+      int resultsColumnNumber = 1;
+      queryQuestionPanel = new JPanel();
+      chooseDependentVariableLabel = new JLabel(queryData.get(1));
+      try{
+        resultsColumnNumber = Integer.parseInt(queryData.get(3).trim());
+      }
+      catch(NumberFormatException e) {
+        e.printStackTrace();
+      }
+      ArrayList<String> results = executeQuery(queryData.get(2), resultsColumnNumber);
+      queryQuestionsComboBox = new JComboBox<>();
+      for(String aResult: results) {
+        queryQuestionsComboBox.addItem(aResult);
+      }
+      queryQuestionPanel.add(chooseDependentVariableLabel);
+      queryQuestionPanel.add(queryQuestionsComboBox);
+      topStuffPanel.add(queryQuestionPanel);
     }
-    queryQuestionPanel.add(chooseDependentVariableLabel);
-    queryQuestionPanel.add(queryQuestionsComboBox);
-    topStuffPanel.add(queryQuestionPanel);
 
     lowerPanel = new JPanel();
     showQueryButton = new JButton("Show Query");
@@ -282,16 +301,13 @@ public class QueriesDemoGUI extends JFrame {
     repaint();
   }
 
-    ArrayList<String> executeQuery(String query, String resultAttribute) {
+    ArrayList<String> executeQuery(String query, int resultAttribute) {
 
     OracleDataSource db       = null;
     Connection conn           = null;
     Statement stmt            = null;
     ResultSet rset            = null;
     ArrayList<String> results = new ArrayList<>();
-
-    // Trim non alphabetic characters from resultAttribute
-    String interestedAttribute = resultAttribute.replaceAll("[^a-zA-Z]+", "");
 
     try{
       db = new OracleDataSource();
@@ -303,9 +319,17 @@ public class QueriesDemoGUI extends JFrame {
       stmt = conn.createStatement();
 
       rset = stmt.executeQuery(query);
+      ResultSetMetaData rSMD = rset.getMetaData();
+
+      String columnType = rSMD.getColumnTypeName(resultAttribute);
 
       while(rset.next()) {
-        results.add(rset.getString(interestedAttribute));
+        if(columnType.matches("VARCHAR2")) {
+          results.add(rset.getString(resultAttribute));
+        }
+        else if(columnType.matches("NUMBER")) {
+          results.add("" + rset.getInt(resultAttribute));
+        }
       }
 
       stmt.close();
@@ -390,7 +414,7 @@ public class QueriesDemoGUI extends JFrame {
         System.out.println("This is not yet implemented!");
       } 
       else if(buttonThatWasClicked.getText() == "Show Query") {
-        textArea.setText(queryData.get(4));
+        textArea.setText(queryDataForDisplay);
       }
       else if(buttonThatWasClicked.getText() == "Execute Query") {
         int numberOfQueryValuesToBeSet = 1;
@@ -403,7 +427,9 @@ public class QueriesDemoGUI extends JFrame {
 
         // TODO: abstract this to include N combobox datums
         String[] comboBoxResults = new String[1];
-        comboBoxResults[0] = (String)queryQuestionsComboBox.getSelectedItem();
+        if(queryQuestionsComboBox != null) {
+          comboBoxResults[0] = (String)queryQuestionsComboBox.getSelectedItem();
+        }
 
         ArrayList<String> queryResults = executePreparedStatement(queryData.get(4), comboBoxResults, numberOfQueryValuesToBeSet);
 

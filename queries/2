@@ -4,7 +4,7 @@ Choose a company:
 !!!
 select name from company
 !!!
-name
+1
 !!!
 SELECT name
 FROM 

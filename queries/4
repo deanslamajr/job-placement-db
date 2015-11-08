@@ -1,0 +1,16 @@
+Find all the jobs a person is currently holding.
+!!!
+Choose a person_id:
+!!!
+select person_id from person
+!!!
+1
+!!!
+SELECT *
+FROM works w
+LEFT OUTER JOIN job j ON w.job_id = j.job_id
+LEFT OUTER JOIN job_profile jp ON j.job_code = jp.job_code
+WHERE w.person_id = ? AND start_date < SYSDATE AND end_date IS NULL
+!!!
+1
+!!!

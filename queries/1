@@ -4,7 +4,7 @@ Choose a company:
 !!!
 select name from company
 !!!
-name
+1
 !!!
 SELECT p.first_name || ' ' || p.last_name
 FROM company c 

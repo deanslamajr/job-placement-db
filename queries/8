@@ -1,0 +1,15 @@
+List the required knowledge/skills of a job profile in a readable format.
+!!!
+Choose a job_code:
+!!!
+select job_code from jp_ks
+!!!
+1
+!!!
+SELECT ks.title || ' (' || ks.skill_level || ' level) ' || ks.description
+FROM jp_ks jpks
+LEFT OUTER JOIN knowledge_skill ks ON jpks.ks_code = ks.ks_code
+WHERE jpks.job_code = ?
+!!!
+1
+!!!
