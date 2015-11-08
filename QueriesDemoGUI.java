@@ -64,7 +64,7 @@ public class QueriesDemoGUI extends JFrame {
   private ButtonClickHandler buttonClickHandler;
 
   private JPanel topStuffPanel;
-  private JLabel queryProblemLabel;
+  private JTextArea queryProblemLabel;
   private JLabel chooseDependentVariableLabel;
   private JLabel queryLabel;
   private JPanel queryQuestionPanel;
@@ -107,6 +107,7 @@ public class QueriesDemoGUI extends JFrame {
     query2Button = new JButton( "2" );
     query2Button.addActionListener(buttonClickHandler);
     query3Button = new JButton( "3" );
+    query3Button.addActionListener(buttonClickHandler);
     query4Button = new JButton( "4" );
     query5Button = new JButton( "5" );
     queriesRow1 = new JPanel();
@@ -238,7 +239,12 @@ public class QueriesDemoGUI extends JFrame {
       e.printStackTrace();
     }  
     
-    queryProblemLabel = new JLabel(queryData.get(0));
+    queryProblemLabel = new JTextArea(queryData.get(0));
+    queryProblemLabel.setWrapStyleWord(true);
+    queryProblemLabel.setLineWrap(true);
+    queryProblemLabel.setOpaque(false);
+    queryProblemLabel.setEditable(false);
+    queryProblemLabel.setFocusable(false);
     topStuffPanel.add(queryProblemLabel);
 
     queryQuestionPanel = new JPanel();
@@ -318,6 +324,8 @@ public class QueriesDemoGUI extends JFrame {
     Connection conn           = null;
     PreparedStatement pStmt   = null;
     ResultSet rset            = null;
+    String aResultRow         = null;
+    String columnType         = null;
     ArrayList<String> results = new ArrayList<>();
 
     try{
@@ -336,10 +344,27 @@ public class QueriesDemoGUI extends JFrame {
       rset = pStmt.executeQuery();
 
       ResultSetMetaData rSMD = rset.getMetaData();
-      int columnsNumber = rSMD.getColumnCount();
+      int columnsCount = rSMD.getColumnCount();
+
+      aResultRow = "";
+      for(int columnIndex = 1; columnIndex <= columnsCount; columnIndex++) {
+        aResultRow += rSMD.getColumnName(columnIndex) + "\t";
+      }
+      results.add(aResultRow);
+      results.add("\n");
 
       while(rset.next()) {
-        results.add(rset.getString(1));
+        aResultRow = "";
+        for(int columnIndex = 1; columnIndex <= columnsCount; columnIndex++) {
+          columnType = rSMD.getColumnTypeName(columnIndex);
+          if(columnType.matches("VARCHAR2")) {
+            aResultRow += rset.getString(columnIndex) + "\t";
+          }
+          else if(columnType.matches("NUMBER")) {
+            aResultRow += rset.getInt(columnIndex) + "\t";
+          }
+        }
+        results.add(aResultRow);
       }
 
       pStmt.close();

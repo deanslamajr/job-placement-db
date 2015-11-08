@@ -1,0 +1,22 @@
+List companies' labor cost (total salaries and wage rates by 1920 hours) in descending order.
+!!!
+!!!
+!!!
+!!!
+SELECT c.name, costs.company_id, SUM(costs.salary) AS laborCosts
+FROM 
+(
+SELECT j.company_id, j.job_id, j.pay_rate AS salary
+FROM job j
+WHERE j.pay_type = 'salary'
+UNION
+SELECT j.company_id, j.job_id, j.pay_rate * 1920 AS salary
+FROM job j
+WHERE j.pay_type = 'wage'
+) costs
+LEFT OUTER JOIN company c ON costs.company_id = c.company_id
+GROUP BY costs.company_id, c.name
+ORDER BY laborCosts DESC
+!!!
+0
+!!!
