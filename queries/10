@@ -5,11 +5,43 @@ FROM
 (
 SELECT course_code, COUNT(ks_code) AS matches
 FROM course_ks
-WHERE ks_code IN (1, 2)
+WHERE ks_code IN (?, ?, ?, ?)
 GROUP BY course_code
 ) list
 LEFT OUTER JOIN course c ON list.course_code = c.course_code
-WHERE list.matches = 2
+WHERE list.matches >= ?
 !!!
-0
+5
+!!!
+1 2 3 4 5
+!!!
+Choose a first ks_code:
+!!!
+select distinct ks_code from course_ks
+!!!
+1
+!!!
+Choose a second ks_code:
+!!!
+select distinct ks_code from course_ks
+!!!
+1
+!!!
+Choose a third ks_code:
+!!!
+select distinct ks_code from course_ks
+!!!
+1
+!!!
+Choose a fourth ks_code:
+!!!
+select distinct ks_code from course_ks
+!!!
+1
+!!!
+How many of the previous ks_code's should a course have to be associated:
+!!!
+select level n from dual connect by level <= 4
+!!!
+1
 !!!

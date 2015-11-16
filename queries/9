@@ -1,4 +1,4 @@
-List a person’s missing knowledge/skills for a specific job in a readable format.
+List a person's missing knowledge/skills for a specific job in a readable format.
 !!!
 SELECT ks.title || ' (' || ks.skill_level || ' level) ' || ks.description AS missing
 FROM

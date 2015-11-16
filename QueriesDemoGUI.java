@@ -66,6 +66,7 @@ public class QueriesDemoGUI extends JFrame {
   private ButtonClickHandler buttonClickHandler;
 
   private JPanel topStuffPanel;
+  private JPanel topOfTheTopStuffPanel;
   private JTextArea queryProblemLabel;
   private ArrayList<JPanel> comboBoxPanels;
   private JLabel queryLabel;
@@ -280,10 +281,13 @@ public class QueriesDemoGUI extends JFrame {
 
     setLayout(new GridLayout( 2, 1) );
     topStuffPanel = new JPanel();
-    topStuffPanel.setLayout(new GridLayout( 4, 1));
+    topStuffPanel.setLayout(new GridLayout( 2, 1));
+
+    topOfTheTopStuffPanel = new JPanel();
+    topOfTheTopStuffPanel.setLayout(new GridLayout( 3, 1));
 
     mainTitle = new JLabel("Query " + whichQuery);
-    topStuffPanel.add(mainTitle);
+    topOfTheTopStuffPanel.add(mainTitle);
 
     queryData = new ArrayList<>(7);
     queryDataForDisplay = "";
@@ -333,7 +337,20 @@ public class QueriesDemoGUI extends JFrame {
     queryProblemLabel.setOpaque(false);
     queryProblemLabel.setEditable(false);
     queryProblemLabel.setFocusable(false);
-    topStuffPanel.add(queryProblemLabel);
+    topOfTheTopStuffPanel.add(queryProblemLabel);
+
+    lowerPanel = new JPanel();
+    showQueryButton = new JButton("Show Query");
+    showQueryButton.addActionListener(buttonClickHandler);
+    executeQueryButton = new JButton("Execute Query");
+    executeQueryButton.addActionListener(buttonClickHandler);
+    goBackButton = new JButton("Go Back To Main Menu");
+    goBackButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(showQueryButton);
+    lowerPanel.add(executeQueryButton);
+    lowerPanel.add(goBackButton);
+    topOfTheTopStuffPanel.add(lowerPanel);
+    topStuffPanel.add(topOfTheTopStuffPanel);
 
     if(numberOfComboBoxes != 0) {
       queryQuestionPanel = new JPanel();
@@ -366,18 +383,6 @@ public class QueriesDemoGUI extends JFrame {
       topStuffPanel.add(queryQuestionPanel);
     }
 
-    lowerPanel = new JPanel();
-    showQueryButton = new JButton("Show Query");
-    showQueryButton.addActionListener(buttonClickHandler);
-    executeQueryButton = new JButton("Execute Query");
-    executeQueryButton.addActionListener(buttonClickHandler);
-    goBackButton = new JButton("Go Back To Main Menu");
-    goBackButton.addActionListener(buttonClickHandler);
-    lowerPanel.add(showQueryButton);
-    lowerPanel.add(executeQueryButton);
-    lowerPanel.add(goBackButton);
-    topStuffPanel.add(lowerPanel);
-
     add(topStuffPanel);
 
     textArea = new JTextArea ();
@@ -400,7 +405,7 @@ public class QueriesDemoGUI extends JFrame {
     FileNameExtensionFilter filter = new FileNameExtensionFilter(
         "xSQL files", "xsql");
     chooser.setFileFilter(filter);
-    chooser.setCurrentDirectory(new File("./queries/"));
+    chooser.setCurrentDirectory(new File("./setup/"));
 
     getContentPane().removeAll();
     revalidate();
@@ -435,7 +440,7 @@ public class QueriesDemoGUI extends JFrame {
 
     ArrayList<String> updatesList = new ArrayList<>();
     String insertionStatement = "";
-    File queryFile = new File("./queries/clearData.xsql");
+    File queryFile = new File("./setup/clearData.xsql");
 
     getContentPane().removeAll();
     revalidate();
