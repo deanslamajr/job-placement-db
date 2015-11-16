@@ -1,0 +1,38 @@
+Suppose there is a new job profile that has nobody qualified. List the persons who miss the least number of skills and report the "least number".
+!!!
+WITH required_ks AS
+(
+SELECT ks_code
+FROM jp_ks
+WHERE job_code = ?
+),
+candidates AS (
+SELECT p.first_name || ' ' || p.last_name AS name, p.email_address, (SELECT COUNT(DISTINCT ks_code) FROM
+(
+SELECT ks_code
+FROM required_ks
+MINUS
+SELECT ks_code
+FROM person_ks pks
+WHERE pks.person_id = p.person_id
+)) as number_missing
+FROM person p
+)
+SELECT name, email_address, number_missing
+FROM candidates
+WHERE number_missing = 
+(
+SELECT MIN(number_missing)
+FROM candidates
+)
+!!!
+1
+!!!
+1
+!!!
+Choose a job_code:
+!!!
+select job_code from job_profile
+!!!
+1
+!!!

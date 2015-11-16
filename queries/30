@@ -1,0 +1,85 @@
+Find the courses that can help most jobless people find a job by training them toward the job profiles that have the most openings due to lack of qualified workers.
+!!!
+WITH
+candidates AS (
+SELECT DISTINCT jp.job_code, COUNT(DISTINCT p.person_id) AS candidate_count
+FROM person p 
+LEFT OUTER JOIN works w ON p.person_id = w.person_id,
+job_profile jp
+WHERE 
+(w.job_id IS NULL OR w.end_date IS NULL OR w.end_date < SYSDATE) AND 
+NOT EXISTS
+(
+SELECT jpks.ks_code
+FROM jp_ks jpks
+WHERE jpks.job_code = jp.job_code
+MINUS
+SELECT pks.ks_code
+FROM person_ks pks
+WHERE pks.person_id = p.person_id
+)
+GROUP BY jp.job_code
+),
+openings AS (
+SELECT DISTINCT j.job_code, COUNT(j.job_id) AS openings_count
+FROM job j 
+LEFT OUTER JOIN works w ON j.job_id = w.job_id
+WHERE w.person_id IS NULL OR w.end_date < SYSDATE
+GROUP BY j.job_code
+),
+jp_info AS (
+SELECT o.job_code, o.openings_count - NVL(c.candidate_count,0) AS ratio
+FROM openings o LEFT OUTER JOIN candidates c ON o.job_code = c.job_code
+),
+hiring AS (
+SELECT job_code
+FROM jp_info
+WHERE ratio = (SELECT MIN(ratio) FROM jp_info)
+),
+base_groups AS (
+SELECT RowNum AS g_id, c1.course_code AS cc1, c2.course_code AS cc2, c3.course_code AS cc3
+FROM course c1, course c2, course c3
+WHERE (c1.course_code <= c2.course_code AND c2.course_code = c3.course_code)
+OR (c1.course_code < c2.course_code AND c2.course_code < c3.course_code)
+),
+group_ks AS (
+SELECT g_id, cc1 AS course_code, ks_code
+FROM base_groups LEFT OUTER JOIN course_ks cks ON base_groups.cc1 = cks.course_code
+UNION
+SELECT g_id, cc2 AS course_code, ks_code
+FROM base_groups LEFT OUTER JOIN course_ks cks ON base_groups.cc2 = cks.course_code
+UNION
+SELECT g_id, cc3 AS course_code, ks_code
+FROM base_groups LEFT OUTER JOIN course_ks cks ON base_groups.cc3 = cks.course_code
+),
+group_cc AS (
+SELECT g_id, cc1 AS course_code
+FROM base_groups 
+UNION
+SELECT g_id, cc2 AS course_code
+FROM base_groups
+UNION
+SELECT g_id, cc3 AS course_code
+FROM base_groups
+),
+matches AS (
+SELECT gks.g_id, COUNT(DISTINCT gks.course_code) AS course_count
+FROM group_ks gks, hiring h
+WHERE NOT EXISTS 
+(
+SELECT jpks.ks_code FROM jp_ks jpks WHERE jpks.job_code = h.job_code
+MINUS
+(SELECT ks_code FROM group_ks gks2 WHERE gks.g_id = gks2.g_id
+UNION
+SELECT ks_code FROM hiring h LEFT OUTER JOIN jp_ks jpks ON h.job_code = jpks.job_code)
+)
+GROUP BY gks.g_id
+)
+SELECT m.g_id, c.course_code, c.title
+FROM matches m 
+LEFT OUTER JOIN group_cc gcc ON m.g_id = gcc.g_id
+LEFT OUTER JOIN course c ON gcc.course_code = c.course_code
+WHERE m.course_count = (SELECT MIN(course_count) FROM matches)
+!!!
+0
+!!!

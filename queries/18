@@ -1,0 +1,30 @@
+List all the names along with the emails of the persons who are qualified for a job profile.
+!!!
+WITH required_ks AS
+(
+SELECT ks_code
+FROM jp_ks
+WHERE job_code = ?
+)
+SELECT p.first_name || ' ' || p.last_name AS name, p.email_address
+FROM person p
+WHERE NOT EXISTS
+(
+SELECT ks_code
+FROM required_ks
+MINUS
+SELECT ks_code
+FROM person_ks pks
+WHERE pks.person_id = p.person_id
+)
+!!!
+1
+!!!
+1
+!!!
+Choose a job_code:
+!!!
+select job_code from job_profile
+!!!
+1
+!!!

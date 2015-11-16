@@ -1,0 +1,58 @@
+Find the cheapest course choices to make up one's skill gap by showing the courses to take and the total cost. The considered course sets will not include more than three courses. **WARNING: This takes about 2 minutes to execute.**
+!!!
+WITH base_groups AS (
+SELECT RowNum AS g_id, c1.course_code AS cc1, c2.course_code AS cc2, c3.course_code AS cc3
+FROM course c1, course c2, course c3
+WHERE (c1.course_code <= c2.course_code AND c2.course_code = c3.course_code)
+OR (c1.course_code < c2.course_code AND c2.course_code < c3.course_code)
+),
+group_ks AS (
+SELECT g_id, cc1 AS course_code, ks_code, retail_price
+FROM base_groups LEFT OUTER JOIN course_ks cks ON base_groups.cc1 = cks.course_code
+LEFT OUTER JOIN course c ON base_groups.cc1 = c.course_code
+UNION
+SELECT g_id, cc2 AS course_code, ks_code, retail_price
+FROM base_groups LEFT OUTER JOIN course_ks cks ON base_groups.cc2 = cks.course_code
+LEFT OUTER JOIN course c ON base_groups.cc1 = c.course_code
+UNION
+SELECT g_id, cc3 AS course_code, ks_code, retail_price
+FROM base_groups LEFT OUTER JOIN course_ks cks ON base_groups.cc3 = cks.course_code
+LEFT OUTER JOIN course c ON base_groups.cc1 = c.course_code
+),
+group_cc AS (
+SELECT g_id, cc1 AS course_code
+FROM base_groups 
+UNION
+SELECT g_id, cc2 AS course_code
+FROM base_groups
+UNION
+SELECT g_id, cc3 AS course_code
+FROM base_groups
+),
+matches AS (
+SELECT DISTINCT gks.g_id, SUM(gks.retail_price) AS group_cost
+FROM group_ks gks
+WHERE NOT EXISTS 
+(
+SELECT ks_code FROM jp_ks WHERE job_code = ?
+MINUS
+SELECT ks_code FROM group_ks gks2 WHERE gks.g_id = gks2.g_id
+)
+GROUP BY gks.g_id
+)
+SELECT m.g_id, c.course_code, c.title, c.retail_price, m.group_cost
+FROM matches m 
+LEFT OUTER JOIN group_cc gcc ON m.g_id = gcc.g_id
+LEFT OUTER JOIN course c ON gcc.course_code = c.course_code
+WHERE m.group_cost = (SELECT MIN(group_cost) FROM matches)
+!!!
+1
+!!!
+1
+!!!
+Choose a job_code:
+!!!
+select job_code from jp_ks
+!!!
+1
+!!!

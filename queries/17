@@ -1,0 +1,41 @@
+Find the job with the highest pay rate for a person according to his/her skill qualification.
+!!!
+WITH applicable AS (
+SELECT jpks.job_code, jp.title, job.job_id, job.pay_rate AS yearly
+FROM jp_ks jpks
+LEFT OUTER JOIN job ON jpks.job_code = job.job_code
+LEFT OUTER JOIN job_profile jp ON jpks.job_code = jp.job_code
+WHERE job.pay_type = 'salary'
+AND NOT EXISTS
+(
+SELECT ks_code FROM jp_ks jpks2 WHERE jpks.job_code = jpks2.job_code
+MINUS
+SELECT ks_code FROM person_ks WHERE person_id = ?
+)
+UNION
+SELECT jpks.job_code, jp.title, job.job_id, job.pay_rate*1920 AS yearly
+FROM jp_ks jpks
+LEFT OUTER JOIN job ON jpks.job_code = job.job_code
+LEFT OUTER JOIN job_profile jp ON jpks.job_code = jp.job_code
+WHERE job.pay_type = 'wage'
+AND NOT EXISTS
+(
+SELECT ks_code FROM jp_ks jpks2 WHERE jpks.job_code = jpks2.job_code
+MINUS
+SELECT ks_code FROM person_ks WHERE person_id = ?
+)
+)
+SELECT *
+FROM applicable
+WHERE yearly = (SELECT MAX(yearly) FROM applicable)
+!!!
+1
+!!!
+1 1
+!!!
+Choose a person_id:
+!!!
+select person_id from person
+!!!
+1
+!!!

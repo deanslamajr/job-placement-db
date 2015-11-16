@@ -11,6 +11,8 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -78,6 +80,10 @@ public class QueriesDemoGUI extends JFrame {
   private ArrayList<String> queryData;
   private String queryDataForDisplay;
 
+  private JButton clearDataButton;
+  private JButton customInsertionButton;
+  private JButton randomDataGenerationButton;
+
   private BufferedReader buffReader;
 
   private String username;
@@ -143,6 +149,7 @@ public class QueriesDemoGUI extends JFrame {
     query9Button = new JButton( "9" );
     query9Button.addActionListener(buttonClickHandler);
     query10Button = new JButton( "10" );
+    query10Button.addActionListener(buttonClickHandler);
     queriesRow2 = new JPanel();
     queriesRow2.add(query6Button);
     queriesRow2.add(query7Button);
@@ -153,10 +160,15 @@ public class QueriesDemoGUI extends JFrame {
 
     // Build and add third row of query buttons
     query11Button = new JButton( "11" );
+    query11Button.addActionListener(buttonClickHandler);
     query12Button = new JButton( "12" );
+    query12Button.addActionListener(buttonClickHandler);
     query13Button = new JButton( "13" );
+    query13Button.addActionListener(buttonClickHandler);
     query14Button = new JButton( "14" );
+    query14Button.addActionListener(buttonClickHandler);
     query15Button = new JButton( "15" );
+    query15Button.addActionListener(buttonClickHandler);
     queriesRow3 = new JPanel();
     queriesRow3.add(query11Button);
     queriesRow3.add(query12Button);
@@ -167,10 +179,15 @@ public class QueriesDemoGUI extends JFrame {
 
     // Build and add fourth row of query buttons
     query16Button = new JButton( "16" );
+    query16Button.addActionListener(buttonClickHandler);
     query17Button = new JButton( "17" );
+    query17Button.addActionListener(buttonClickHandler);
     query18Button = new JButton( "18" );
+    query18Button.addActionListener(buttonClickHandler);
     query19Button = new JButton( "19" );
+    query19Button.addActionListener(buttonClickHandler);
     query20Button = new JButton( "20" );
+    query20Button.addActionListener(buttonClickHandler);
     queriesRow4 = new JPanel();
     queriesRow4.add(query16Button);
     queriesRow4.add(query17Button);
@@ -181,10 +198,15 @@ public class QueriesDemoGUI extends JFrame {
 
     // Build and add fifth row of query buttons
     query21Button = new JButton( "21" );
+    query21Button.addActionListener(buttonClickHandler);
     query22Button = new JButton( "22" );
+    query22Button.addActionListener(buttonClickHandler);
     query23Button = new JButton( "23" );
+    query23Button.addActionListener(buttonClickHandler);
     query24Button = new JButton( "24" );
+    query24Button.addActionListener(buttonClickHandler);
     query25Button = new JButton( "25" );
+    query25Button.addActionListener(buttonClickHandler);
     queriesRow5 = new JPanel();
     queriesRow5.add(query21Button);
     queriesRow5.add(query22Button);
@@ -195,10 +217,15 @@ public class QueriesDemoGUI extends JFrame {
 
     // Build and add sixth row of query buttons
     query26Button = new JButton( "26" );
+    query26Button.addActionListener(buttonClickHandler);
     query27Button = new JButton( "27" );
+    query27Button.setEnabled(false);
     query28Button = new JButton( "28" );
+    query28Button.setEnabled(false);
     query29Button = new JButton( "29" );
+    query29Button.addActionListener(buttonClickHandler);
     query30Button = new JButton( "30" );
+    query30Button.addActionListener(buttonClickHandler);
     queriesRow6 = new JPanel();
     queriesRow6.add(query26Button);
     queriesRow6.add(query27Button);
@@ -220,11 +247,34 @@ public class QueriesDemoGUI extends JFrame {
     repaint();
   }
 
+  void updateDB() {
+    getContentPane().removeAll();
+
+    setLayout(new GridLayout( 4, 1) );
+
+    clearDataButton = new JButton("Drop all rows from all tables");
+    clearDataButton.addActionListener(buttonClickHandler);
+    add(clearDataButton);
+
+    customInsertionButton = new JButton("Execute an insertion script from file...");
+    customInsertionButton.addActionListener(buttonClickHandler);
+    add(customInsertionButton);
+
+    randomDataGenerationButton = new JButton("Generate random data for a table");
+    randomDataGenerationButton.addActionListener(buttonClickHandler);
+    add(randomDataGenerationButton);
+
+    goBackButton = new JButton("Go Back To Main Menu");
+    goBackButton.addActionListener(buttonClickHandler);
+    add(goBackButton);
+
+    revalidate();
+    repaint();
+  }
+
   void drawQueryPerformScreen(String whichQuery) {
     ArrayList<String> results;
     int resultsColumnNumber = 1;
-
-    setSize( 500, 750 );
 
     getContentPane().removeAll();
 
@@ -339,7 +389,77 @@ public class QueriesDemoGUI extends JFrame {
     repaint();
   }
 
-    ArrayList<String> executeQuery(String query, int resultAttribute) {
+  void insertFromFile() {
+    String currentLineOfInput;
+
+    ArrayList<String> updatesList = new ArrayList<>();
+    String insertionStatement = "";
+    File queryFile;
+
+    JFileChooser chooser = new JFileChooser();
+    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+        "xSQL files", "xsql");
+    chooser.setFileFilter(filter);
+    chooser.setCurrentDirectory(new File("./queries/"));
+
+    getContentPane().removeAll();
+    revalidate();
+    repaint();
+
+    int returnVal = chooser.showOpenDialog(this);
+    if(returnVal == JFileChooser.APPROVE_OPTION) {
+      String pathToFile = chooser.getSelectedFile().getAbsolutePath();
+
+      queryFile = new File(pathToFile);
+
+      try {
+        buffReader = new BufferedReader(new FileReader(queryFile));
+
+        while((currentLineOfInput = buffReader.readLine()) != null) {
+          //insertionStatement += currentLineOfInput + " ";
+          updatesList.add(currentLineOfInput);
+        }
+      }
+      catch(FileNotFoundException e) {
+        e.printStackTrace();
+      } 
+      catch(IOException e) {
+        e.printStackTrace();
+      } 
+      executeDataManipulationStatement(updatesList);
+    }   
+  }
+
+  void clearData() {
+    String currentLineOfInput;
+
+    ArrayList<String> updatesList = new ArrayList<>();
+    String insertionStatement = "";
+    File queryFile = new File("./queries/clearData.xsql");
+
+    getContentPane().removeAll();
+    revalidate();
+    repaint();
+
+    try {
+      buffReader = new BufferedReader(new FileReader(queryFile));
+
+      while((currentLineOfInput = buffReader.readLine()) != null) {
+        //insertionStatement += currentLineOfInput + " ";
+        updatesList.add(currentLineOfInput);
+      }
+    }
+    catch(FileNotFoundException e) {
+      e.printStackTrace();
+    } 
+    catch(IOException e) {
+      e.printStackTrace();
+    } 
+
+    executeDataManipulationStatement(updatesList);
+  }
+
+  ArrayList<String> executeQuery(String query, int resultAttribute) {
 
     OracleDataSource db       = null;
     Connection conn           = null;
@@ -378,6 +498,43 @@ public class QueriesDemoGUI extends JFrame {
     }
 
     return results;
+  }
+
+  void executeDataManipulationStatement(ArrayList<String> listOfStatements) {
+    
+    String currentStatement;
+    String textAreaText = "";
+
+    OracleDataSource db       = null;
+    Connection conn           = null;
+    Statement stmt            = null;
+
+    try{
+      db = new OracleDataSource();
+      db.setURL("jdbc:oracle:thin:@//dbsvcs.cs.uno.edu:1521/ORCL.CS.UNO.EDU");
+      db.setUser(username);
+      db.setPassword(password);
+
+      conn = db.getConnection();
+      
+      stmt = conn.createStatement();
+      for(int currentStatementIndex = 0; currentStatementIndex<listOfStatements.size(); currentStatementIndex++) {
+        currentStatement = listOfStatements.get(currentStatementIndex);
+        if(!currentStatement.equals("")) {
+          try {
+            stmt.executeUpdate(currentStatement);
+          }
+          catch(SQLException e) {
+            String error = "On execution of statement:\n\n" + currentStatement + "\n\nException thrown: " + e.getMessage() + "\n";
+            textArea.append(error);
+            System.out.println(error);
+          }
+        }
+      }
+    } 
+    catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
   ArrayList<String> executePreparedStatement(String query, String[] comboBoxValues, int[] settersMap) {
@@ -456,7 +613,7 @@ public class QueriesDemoGUI extends JFrame {
         System.exit( 0 );
       } 
       else if(buttonThatWasClicked.getText() == "UPDATE DB") {
-        System.out.println("This is not yet implemented!");
+        updateDB();
       } 
       else if(buttonThatWasClicked.getText() == "Show Query") {
         textArea.setText(queryDataForDisplay);
@@ -496,6 +653,17 @@ public class QueriesDemoGUI extends JFrame {
       }
       else if(buttonThatWasClicked.getText() == "Go Back To Main Menu") {
         drawMainMenu();
+      }
+      else if(buttonThatWasClicked.getText() == "Drop all rows from all tables") {
+        clearData();
+        updateDB(); 
+      }
+      else if(buttonThatWasClicked.getText() == "Execute an insertion script from file...") {
+        insertFromFile();
+        updateDB(); 
+      }
+      else if(buttonThatWasClicked.getText() == "Generate random data for a table") {
+        System.out.println("Draw new screen to prompt user to select a table and number of rows to generate and insert");
       }
       else {
         drawQueryPerformScreen(buttonThatWasClicked.getText());

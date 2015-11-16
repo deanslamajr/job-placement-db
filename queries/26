@@ -1,0 +1,18 @@
+Find out the biggest employer in terms of number of employees or the total amount of salaries and wages paid to employees.
+!!!
+WITH comp_job_count AS (
+SELECT j.company_id, COUNT(DISTINCT w.person_id) AS job_count
+FROM job j
+LEFT OUTER JOIN works w ON j.job_id = w.job_id
+WHERE w.start_date < SYSDATE AND (w.end_date IS NULL OR w.end_date > SYSDATE)
+GROUP BY j.company_id)
+SELECT *
+FROM comp_job_count
+WHERE job_count = 
+(
+SELECT MAX(job_count)
+FROM comp_job_count
+)
+!!!
+0
+!!!

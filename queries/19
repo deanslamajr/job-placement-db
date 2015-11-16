@@ -1,0 +1,30 @@
+When a company cannot find any qualified person for a job, a secondary solution is to find a person who is almost qualified to the job. Make a "missing-one" list that lists people who miss only one skill for a specified job profile.
+!!!
+WITH required_ks AS
+(
+SELECT ks_code
+FROM jp_ks
+WHERE job_code = ?
+)
+SELECT p.first_name || ' ' || p.last_name AS name, p.email_address
+FROM person p
+WHERE 2 > (SELECT COUNT(DISTINCT ks_code) FROM
+(
+SELECT ks_code
+FROM required_ks
+MINUS
+SELECT ks_code
+FROM person_ks pks
+WHERE pks.person_id = p.person_id
+))
+!!!
+1
+!!!
+1
+!!!
+Choose a job_code:
+!!!
+select job_code from job_profile
+!!!
+1
+!!!

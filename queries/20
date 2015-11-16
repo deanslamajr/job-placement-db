@@ -1,0 +1,36 @@
+List the skillID and the number of people in the missing-one list for a given job profile in the ascending order of the people counts.
+!!!
+WITH unacquired_ks AS (
+SELECT person_id, ks_code
+FROM person, knowledge_skill
+MINUS
+SELECT person_id, ks_code
+FROM person_ks),
+required_ks AS (
+SELECT ks_code
+FROM jp_ks
+WHERE job_code = ?),
+missing_ks AS (
+SELECT uks.person_id, rks.ks_code
+FROM unacquired_ks uks
+INNER JOIN required_ks rks ON uks.ks_code = rks.ks_code),
+mpks AS (
+SELECT person_id, COUNT(ks_code) missing_count
+FROM missing_ks
+GROUP BY person_id
+HAVING COUNT(ks_code) = 1)
+SELECT mks.ks_code, COUNT(mpks.person_id) AS person_count
+FROM mpks LEFT OUTER JOIN missing_ks mks ON mpks.person_id = mks.person_id
+GROUP BY mks.ks_code
+ORDER BY person_count ASC
+!!!
+1
+!!!
+1
+!!!
+Choose a job_code:
+!!!
+select job_code from job_profile
+!!!
+1
+!!!

@@ -1,0 +1,22 @@
+List all the job profiles that a person is qualified.
+!!!
+SELECT jpks.job_code, jp.title
+FROM jp_ks jpks
+LEFT OUTER JOIN job_profile jp ON jpks.job_code = jp.job_code
+WHERE NOT EXISTS
+(
+SELECT ks_code FROM jp_ks jpks2 WHERE jpks.job_code = jpks2.job_code
+MINUS
+SELECT ks_code FROM person_ks WHERE person_id = ?
+)
+!!!
+1
+!!!
+1
+!!!
+Choose a person_id:
+!!!
+select person_id from person
+!!!
+1
+!!!

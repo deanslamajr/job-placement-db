@@ -2,7 +2,7 @@
 !!!
 <the actual query>
 !!!
-<number of comboBoxes>
+<number of comboBoxes (if 0, line 7 and beyond can be ommitted)>
 !!!
 <association of ?'s to comboBoxes: e.g. 1 2 1 would mean the first and third '?' correspond to the first box while the second '?' is mapped to the value of the second combobox>
 !!!

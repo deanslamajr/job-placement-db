@@ -1,0 +1,18 @@
+In a local or national crisis, we need to find all the people who once held a job of the special job-profile identifier.
+!!!
+SELECT p.person_id, p.first_name || ' ' || p.last_name AS name
+FROM job j
+LEFT OUTER JOIN works w ON j.job_id = w.job_id
+LEFT OUTER JOIN person p ON w.person_id = p.person_id
+WHERE j.job_code = ? AND w.end_date < SYSDATE
+!!!
+1
+!!!
+1
+!!!
+Choose a job_code:
+!!!
+select job_code from job_profile
+!!!
+1
+!!!

@@ -1,0 +1,31 @@
+List the courses (course id and title) that each alone teaches all the missing knowledge/skills for a person to pursue a specific job.
+!!!
+WITH required_ks AS
+(
+SELECT jpks.ks_code
+FROM job j 
+LEFT OUTER JOIN jp_ks jpks ON j.job_code = jpks.job_code
+WHERE j.job_id = ?
+)
+SELECT c.course_code, c.title
+FROM course c
+WHERE NOT EXISTS
+(
+SELECT ks_code
+FROM required_ks
+MINUS
+SELECT ks_code
+FROM course_ks cks
+WHERE cks.course_code = c.course_code
+)
+!!!
+1
+!!!
+1
+!!!
+Choose a job_id:
+!!!
+select job_id from job
+!!!
+1
+!!!

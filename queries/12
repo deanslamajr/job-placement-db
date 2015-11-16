@@ -1,0 +1,42 @@
+Suppose the skill gap of a worker and the requirement of a desired job can be covered by one course. Find the "quickest" solution for this worker. Show the course and the completing date.
+!!!
+WITH required_ks AS
+(
+SELECT jpks.ks_code
+FROM job j 
+LEFT OUTER JOIN jp_ks jpks ON j.job_code = jpks.job_code
+WHERE j.job_id = ?
+),
+matches AS 
+(
+SELECT c.course_code, c.title, s.end_date
+FROM course c
+LEFT OUTER JOIN section s ON c.course_code = s.course_code
+WHERE s.section_number IS NOT NULL AND NOT EXISTS
+(
+SELECT ks_code
+FROM required_ks
+MINUS
+SELECT ks_code
+FROM course_ks cks
+WHERE cks.course_code = c.course_code
+)
+)
+SELECT *
+FROM matches
+WHERE end_date =
+(
+SELECT MIN (end_date)
+FROM matches
+)
+!!!
+1
+!!!
+1
+!!!
+Choose a job_id:
+!!!
+select job_id from job
+!!!
+1
+!!!

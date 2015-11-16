@@ -1,0 +1,38 @@
+Find the job profiles that have the most openings due to lack of qualified workers. If there are many opening jobs of a job profile but at the same time there are many qualified jobless people. Then training cannot help fill up this type of job. What we want to find is such a job profile that has the largest difference between vacancies (the unfilled jobs of this job profile) and the number of jobless people who are qualified for this job profile.
+!!!
+WITH
+candidates AS (
+SELECT DISTINCT jp.job_code, COUNT(DISTINCT p.person_id) AS candidate_count
+FROM person p 
+LEFT OUTER JOIN works w ON p.person_id = w.person_id,
+job_profile jp
+WHERE 
+(w.job_id IS NULL OR w.end_date IS NULL OR w.end_date < SYSDATE) AND 
+NOT EXISTS
+(
+SELECT jpks.ks_code
+FROM jp_ks jpks
+WHERE jpks.job_code = jp.job_code
+MINUS
+SELECT pks.ks_code
+FROM person_ks pks
+WHERE pks.person_id = p.person_id
+)
+GROUP BY jp.job_code
+),
+openings AS (
+SELECT DISTINCT j.job_code, COUNT(j.job_id) AS openings_count
+FROM job j 
+LEFT OUTER JOIN works w ON j.job_id = w.job_id
+WHERE w.person_id IS NULL OR w.end_date < SYSDATE
+GROUP BY j.job_code
+),
+jp_info AS (
+SELECT o.job_code, o.openings_count - NVL(c.candidate_count,0) AS ratio
+FROM openings o LEFT OUTER JOIN candidates c ON o.job_code = c.job_code)
+SELECT jp.job_code, jp.title
+FROM jp_info jpi LEFT OUTER JOIN job_profile jp ON jpi.job_code = jp.job_code
+WHERE ratio = (SELECT MIN(ratio) FROM jp_info)
+!!!
+0
+!!!

@@ -1,0 +1,15 @@
+Find the courses each of which alone can cover a given skill set.
+!!!
+SELECT c.title
+FROM
+(
+SELECT course_code, COUNT(ks_code) AS matches
+FROM course_ks
+WHERE ks_code IN (1, 2)
+GROUP BY course_code
+) list
+LEFT OUTER JOIN course c ON list.course_code = c.course_code
+WHERE list.matches = 2
+!!!
+0
+!!!

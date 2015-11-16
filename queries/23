@@ -1,0 +1,43 @@
+Given a job profile and its corresponding missing-k list specified in Question 22. Find every skill that is needed by at least one person in the given missing-k list. List each skillID and the number of people who need it in the descending order of the people counts.
+!!!
+WITH required_ks AS
+(
+SELECT ks_code
+FROM jp_ks
+WHERE job_code = ?
+),
+missing_ks AS
+(
+SELECT p.person_id, rks.ks_code
+FROM person p, required_ks rks
+MINUS 
+SELECT person_id, ks_code
+FROM person_ks
+),
+ks_count AS 
+(
+SELECT person_id, COUNT(DISTINCT ks_code) ks_count
+FROM missing_ks
+GROUP BY person_id
+)
+SELECT mks.ks_code, COUNT(ksc.person_id) person_count
+FROM ks_count ksc LEFT OUTER JOIN missing_ks mks ON ksc.person_id = mks.person_id
+WHERE ksc.ks_count <= ?
+GROUP BY mks.ks_code
+!!!
+2
+!!!
+1 2
+!!!
+Choose a job_code:
+!!!
+select job_code from job_profile
+!!!
+1
+!!!
+Choose a "k" value:
+!!!
+select level n from dual connect by level <= 10
+!!!
+1
+!!!
