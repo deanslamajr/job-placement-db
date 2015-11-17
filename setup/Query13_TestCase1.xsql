@@ -1,0 +1,35 @@
+INSERT INTO job_profile VALUES(1, 'Retail Salesperson', 'Perform the function of a(n) retail salesperson')
+
+INSERT INTO sector VALUES (1, 'Basic Materials')
+
+INSERT INTO company VALUES (1, 'ATandT', 'www.ATandT.com', 595, 'Leilani  ', 19, 'New York', 'NY', 8225843819, 1)
+
+INSERT INTO job VALUES(1, 1, 1, 'full-time', 'salary', 121440)
+
+INSERT INTO knowledge_skill VALUES (1, 'Java Programming', 'Advanced understanding of Java Programming', 'advanced')
+INSERT INTO knowledge_skill VALUES (2, 'Databases', 'Advanced understanding of Databases', 'advanced')
+INSERT INTO knowledge_skill VALUES (3, '.NET Programming', 'Advanced understanding of .NET Programming', 'advanced')
+INSERT INTO knowledge_skill VALUES (4, 'Public Speaking', 'Intermediate understanding of Public Speaking', 'intermediate')
+INSERT INTO knowledge_skill VALUES (5, 'Accounting', 'Advanced understanding of Accounting', 'advanced')
+INSERT INTO knowledge_skill VALUES (6, 'Troublshooting', 'Beginner understanding of Troublshooting', 'beginner')
+
+INSERT INTO jp_ks VALUES(1, 1)
+INSERT INTO jp_ks VALUES(1, 2)
+INSERT INTO jp_ks VALUES(1, 3)
+INSERT INTO jp_ks VALUES(1, 4)
+
+INSERT INTO course VALUES (1, 'CSCI 1583', 'Advanced Computer Science', 'advanced', 'expired', 1741.31)
+INSERT INTO course VALUES (2, 'CSCI 3301', 'Advanced Computer Science', 'advanced', 'active', 245.85)
+INSERT INTO course VALUES (3, 'ENGL 2152', 'Beginner English', 'beginner', 'expired', 1206)
+INSERT INTO course VALUES (4, 'ENGL 2152', 'Beginner English', 'beginner', 'expired', 1206)
+INSERT INTO course VALUES (5, 'ENGL 2152', 'Beginner English', 'beginner', 'expired', 1206)
+INSERT INTO course VALUES (6, 'CSCI 3301', 'Advanced Computer Science', 'advanced', 'active', 245.85)
+
+INSERT INTO course_ks VALUES(1, 1)
+INSERT INTO course_ks VALUES(2, 2)
+INSERT INTO course_ks VALUES(3, 3)
+INSERT INTO course_ks VALUES(4, 4)
+INSERT INTO course_ks VALUES(5, 1)
+INSERT INTO course_ks VALUES(5, 2)
+INSERT INTO course_ks VALUES(6, 3)
+INSERT INTO course_ks VALUES(6, 4)

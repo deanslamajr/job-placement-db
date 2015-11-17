@@ -10,6 +10,6 @@
 !!!
 <query to fill first combobox>
 !!!
-<column number (first column is 1) to parse result of first combobox query>
+<column number (first column is 1) to parse result of first combobox query (this should almost always be 1)>
 !!!
 <<N-1 sets of the above three data rows where N = number of comboBoxes

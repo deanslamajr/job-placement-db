@@ -1,0 +1,112 @@
+Test cases
+
+
+To test query:
+1. Setup database by clicking on 'UPDATE DB'
+	a. clear database by clicking on 'Drop all rows from all tables'
+	b. call insertion script for particular test case by 
+		A. clicking on 'Execute an insertion script form file...'
+		B. selecting the appropriate testcase .xsql setup file
+2. Click 'Go Back To Main Menu'
+3. Click on the button corresponding to the number of query under test
+4. Set up the combo boxes according to test case
+5. Run query by clicking 'Execute Query'
+6. Assert results match expected results
+
+
+
+
+Query 9:
+------
+1. A person with no skills should require all the skills that a particular job requires.
+	Set up:
+		Choose a job_id: 1
+		Choose a person_id: 1
+	Expected result: 
+		C# Programming (beginner level) Beginner understanding of C# Programming	
+		C# Programming (intermediate level) Intermediate understanding of C# Programming	
+		C# Programming (advanced level) Advanced understanding of C# Programming	
+		Java Programming (beginner level) Beginner understanding of Java Programming
+
+2. A person with 2 of the 4 skills required for a particular job should require the missing 2 skills.
+	Set up:
+		Choose a job_id: 1
+		Choose a person_id: 1
+	Expected result:
+		C# Programming (advanced level) Advanced understanding of C# Programming	
+		Java Programming (beginner level) Beginner understanding of Java Programming
+
+
+Query 10:
+------
+1. 4 skills are defined and 3 courses are defined. 2 of the courses are associated with all 4 skills.
+	Set up:
+		Choose a first ks_code: 1
+		Choose a second ks_code: 2
+		Choose a third ks_code: 3
+		Choose a fourth ks_code: 4
+		How many of the previous ks_code's should a course have to be associated: 4
+	Expected result:
+		The 2 courses are returned by the query:
+			CSCI 1583	
+			CSCI 3301
+
+2. 4 skills are defined and 3 courses are defined. None of the courses cover all 4 skills.
+	Set up:
+		Choose a first ks_code: 1
+		Choose a second ks_code: 2
+		Choose a third ks_code: 3
+		Choose a fourth ks_code: 4
+		How many of the previous ks_code's should a course have to be associated: 4
+	Expected result:
+		No courses are returned by the query.
+
+
+Query 11:
+------
+1. 4 courses exist, 2 are associated with all the skills required for a job (job requires 4 distinct skills)and some extra skills as well, 1 course is missing 1 skill, 1 job only matches on of the skills.
+	Set up:
+		Choose a job_id: 1
+	Expected result:
+		The 2 courses associated with all required skills:
+		1	CSCI 1583	
+		2	CSCI 3301
+
+2. 4 courses exist, none of the courses alone cover all skills required for a job. However, taken together, the courses would cover all skills required for the job.
+	Set up:
+		Choose a job_id: 1
+	Expected result:
+		No courses listed
+
+Query 12:
+------
+1. A job exists that requires 4 skills. 3 courses exist that are each associated with all 4 skills. Each course has one section offered.
+	Set up:
+		Choose a job_id: 1
+	Expected result:
+		The course with the section with the earliest end date => 1 CSCI 1583
+
+2. A job exists that requires 4 skills. 1 course exists that is associated with all 4 skills. The course has three different sections offered.
+	Set up:
+		Choose a job_id: 1
+	Expected result:
+		The course with the section with the earliest end date => 1 CSCI 1583
+
+Query 13:
+------
+1. For a particular job, 4 different combinations of available courses would be sufficient to gain the required skills: 
+	a. Courses 1, 2, 3, 4
+	b. Courses 1, 2, 6
+	c. Courses 3, 4, 5
+	d. Courses 5, 6
+
+	Set up:
+		Choose a job_id: 1
+	Expected result:
+		The course set of least number of courses => Courses 5, 6
+
+2. For a particular job, no combination of available courses would be sufficient to gain the required skills.
+	Set up:
+		Choose a job_id: 1
+	Expected result:
+		No courses listed

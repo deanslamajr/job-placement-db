@@ -37,7 +37,7 @@ WHERE matches.course_count = (SELECT MIN(course_count) FROM matches)
 !!!
 Choose a job_code:
 !!!
-select job_code from jp_ks
+select distinct job_code from job_profile
 !!!
 1
 !!!
