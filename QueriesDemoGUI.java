@@ -103,7 +103,7 @@ public class QueriesDemoGUI extends JFrame {
   private JPanel newPersonPanel;
   private JButton newPersonButton;
 
-  private JComboBox personsComboBox;
+  private JComboBox<String> personsComboBox;
   private JButton selectPersonButton;
   private JPanel personsListPanel;
 
@@ -112,7 +112,7 @@ public class QueriesDemoGUI extends JFrame {
   private JButton viewOffersButton;
   private JPanel viewOffersPanel;
 
-  private JComboBox qualifiedJobsComboBox;
+  private JComboBox<String> qualifiedJobsComboBox;
   private JPanel qualifiedJobsPanel;
   private JButton applyButton;
 
@@ -123,8 +123,21 @@ public class QueriesDemoGUI extends JFrame {
 
   private JPanel jobOffersPanel;
   private JLabel noOffersLabel;
-  private JComboBox jobOffersComboBox;
+  private JComboBox<String> jobOffersComboBox;
   private JButton acceptButton;
+
+  private JPanel companiesListPanel;
+  private JLabel noCompaniesLabel;
+  private JComboBox<String> companiesComboBox;
+
+  private JTextArea applicantDataArea;
+  private JPanel middlePanel;
+  private JPanel rightPanel;
+  private JLabel noApplicantsLabel;
+  private JComboBox<String> applicantsComboBox;
+  private JButton showInfoButton;
+  private JButton rejectButton;
+  private JButton acceptApplicantButton;
 
   private BufferedReader buffReader;
 
@@ -133,6 +146,9 @@ public class QueriesDemoGUI extends JFrame {
 
   private String interestedPersonsData;
   private String jobToApplyToData;
+  private String interestedCompanyData;
+  private String interestedApplicantData;
+  private String jobOfferedData;
 
   private int numberOfComboBoxes = 0;
 
@@ -173,6 +189,7 @@ public class QueriesDemoGUI extends JFrame {
 
     acceptAnApplicantPanel = new JPanel();
     acceptAnApplicantButton = new JButton("Accept an applicant");
+    acceptAnApplicantButton.addActionListener(buttonClickHandler);
     acceptAnApplicantPanel.add(acceptAnApplicantButton);
     add(acceptAnApplicantPanel);
 
@@ -249,7 +266,7 @@ public class QueriesDemoGUI extends JFrame {
     add(mainTitle);
 
     peopleFromDB = executeQuery("select PERSON_ID || ' ' || FIRST_NAME || ' ' || MIDDLE_NAME || ' ' || LAST_NAME from person", 1);
-    personsComboBox = new JComboBox();
+    personsComboBox = new JComboBox<>();
     for(String aPerson: peopleFromDB) {
       personsComboBox.addItem(aPerson);
     }
@@ -326,7 +343,7 @@ public class QueriesDemoGUI extends JFrame {
       qualifiedJobs.add("Error retrieving job data for " + interestedPersonsData);
     }
 
-    qualifiedJobsComboBox = new JComboBox();
+    qualifiedJobsComboBox = new JComboBox<>();
     for(String aJob: qualifiedJobs) {
       qualifiedJobsComboBox.addItem(aJob);
     }
@@ -371,6 +388,7 @@ public class QueriesDemoGUI extends JFrame {
   }
 
   void drawJobAppliedForScreen() {
+    int nextJobApplication;
     ArrayList<String> updateList;
     String[] jobToApplyToTokens = jobToApplyToData.split(" ");
     String[] personDataTokens = interestedPersonsData.split(" ");
@@ -379,9 +397,18 @@ public class QueriesDemoGUI extends JFrame {
 
     setLayout(new GridLayout( 2, 1) );
 
+    String currentJobApplicationNumberQuery = "SELECT MAX(application_id) FROM job_application";
+    ArrayList<String> mostRecentJobApplication = executeQuery(currentJobApplicationNumberQuery, 1);
+    try{
+      nextJobApplication = Integer.parseInt(mostRecentJobApplication.get(0)) + 1;
+    }
+    catch(NumberFormatException e) {
+      nextJobApplication = 1;
+    }
+
     jobToApplyToTokens = jobToApplyToData.split(" ");
     updateList = new ArrayList<>(1);
-    updateList.add("INSERT INTO job_application VALUES(seq_application.nextval, " + personDataTokens[0] + ", " + jobToApplyToTokens[0] + ", 'applied')");
+    updateList.add("INSERT INTO job_application VALUES(" + nextJobApplication + ", " + personDataTokens[0] + ", " + jobToApplyToTokens[0] + ", 'applied')");
     executeDataManipulationStatement(updateList);
 
     infoLabel = new JLabel(interestedPersonsData + " has applied for the job " + jobToApplyToData);
@@ -407,7 +434,9 @@ public class QueriesDemoGUI extends JFrame {
     mainTitle = new JLabel("Current Job offers for " + interestedPersonsData);
     add(mainTitle);
 
-    String jobOffersQuery = "SELECT ja.application_id || ' ' || jp.title || ' ' || c.name from job_application ja, job j, job_profile jp, company c where ja.job_id = j.job_id and jp.job_code = j.job_code and c.company_id = j.company_id and ja.status = 'offered'";
+    String[] personTokens = interestedPersonsData.split(" ");
+
+    String jobOffersQuery = "SELECT ja.application_id || ' ' || jp.title || ' ' || c.name from job_application ja, job j, job_profile jp, company c where ja.person_id = " + personTokens[0] + " AND ja.job_id = j.job_id and jp.job_code = j.job_code and c.company_id = j.company_id and ja.status = 'offered'";
     ArrayList<String> queryResults = executeQuery(jobOffersQuery, 1);
 
     jobOffersPanel = new JPanel();
@@ -424,14 +453,113 @@ public class QueriesDemoGUI extends JFrame {
       jobOffersPanel.add(noOffersLabel);
     }
     else {
-      jobOffersComboBox = new JComboBox();
+      jobOffersComboBox = new JComboBox<>();
       for(String anOffer: queryResults) {
         jobOffersComboBox.addItem(anOffer);
       }
       jobOffersPanel.add(jobOffersComboBox);
       acceptButton = new JButton("Accept selected job");
+      acceptButton.addActionListener(buttonClickHandler);
       lowerPanel.add(acceptButton);
     }
+
+    revalidate();
+    repaint();
+  }
+
+  void drawAcceptApplicantMenu() {
+    getContentPane().removeAll();
+
+    setLayout(new GridLayout( 3, 1) );
+
+    mainTitle = new JLabel("Select a company");
+    add(mainTitle);
+
+    String queryCompanies = "SELECT company_id || ' ' || name FROM company";
+    ArrayList<String> listOfCompanies = executeQuery(queryCompanies, 1);
+
+    companiesListPanel = new JPanel();
+
+    lowerPanel = new JPanel();
+    exitButton = new JButton("Go Back To Main Menu");
+    exitButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(exitButton);
+
+    if(listOfCompanies.size() == 0) {
+      noCompaniesLabel = new JLabel("No companies available.");
+      companiesListPanel.add(noCompaniesLabel);
+    }
+    else{
+      companiesComboBox = new JComboBox<>();
+      for(String aCompany: listOfCompanies) {
+        companiesComboBox.addItem(aCompany);
+      }
+      companiesListPanel.add(companiesComboBox);
+
+      applyButton = new JButton("Select company");
+      applyButton.addActionListener(buttonClickHandler);;
+      lowerPanel.add(applyButton);
+    }
+    add(companiesListPanel);
+    add(lowerPanel);
+
+    revalidate();
+    repaint();
+  }
+
+  void drawChooseApplicantScreen() {
+    String[] companyTokens = interestedCompanyData.split(" ");
+
+    getContentPane().removeAll();
+
+    setLayout(new GridLayout( 4, 1) );
+
+    mainTitle = new JLabel("Choose an applicant");
+    add(mainTitle);
+
+    middlePanel = new JPanel();
+    middlePanel.setLayout(new GridLayout( 1, 2) );
+    applicantDataArea = new JTextArea();
+    applicantDataArea.setWrapStyleWord(true);
+    applicantDataArea.setLineWrap(true);
+    applicantDataArea.setOpaque(false);
+    applicantDataArea.setEditable(false);
+    applicantDataArea.setFocusable(false);
+    middlePanel.add(applicantDataArea);
+    rightPanel = new JPanel();
+    add(rightPanel);
+
+    String applicantsQuery = "SELECT ja.application_id || ' ' || p.first_name || ' ' || p.last_name FROM person p, job_application ja, job j WHERE ja.job_id = j.job_id AND j.company_id = " + companyTokens[0] + " AND p.person_id = ja.person_id AND ja.status = 'applied'";
+    ArrayList<String> listOfApplicants = executeQuery(applicantsQuery, 1);
+
+    lowerPanel = new JPanel();
+    exitButton = new JButton("Go Back To Company Select Menu");
+    exitButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(exitButton);
+
+    if(listOfApplicants.size() == 0) {
+      noApplicantsLabel = new JLabel("There are currently no applicants.");
+      rightPanel.add(noApplicantsLabel);
+    }
+    else{
+      applicantsComboBox = new JComboBox<>();
+      for(String anApplicant: listOfApplicants) {
+        applicantsComboBox.addItem(anApplicant);
+      }
+      rightPanel.add(applicantsComboBox);
+
+      showInfoButton = new JButton("Show applicant information");
+      rightPanel.add(showInfoButton);
+
+      rejectButton = new JButton("Reject Applicant");
+      rejectButton.addActionListener(buttonClickHandler);
+      lowerPanel.add(rejectButton);
+      acceptApplicantButton = new JButton("Accept Applicant");
+      acceptApplicantButton.addActionListener(buttonClickHandler);
+      lowerPanel.add(acceptApplicantButton);
+    }
+    add(middlePanel);
+    add(lowerPanel);
 
     revalidate();
     repaint();
@@ -1030,6 +1158,43 @@ public class QueriesDemoGUI extends JFrame {
         drawJobAppliedForScreen();
       }
       else if(buttonThatWasClicked.getText() == "View current job offers") {
+        drawJobOffersScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "Accept an applicant" || buttonThatWasClicked.getText() == "Go Back To Company Select Menu") {
+        drawAcceptApplicantMenu();
+      }
+      else if(buttonThatWasClicked.getText() == "Select company") {
+        interestedCompanyData = (String)companiesComboBox.getSelectedItem();
+        drawChooseApplicantScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "Reject Applicant") {
+        String[] applicantTokens;
+        interestedApplicantData = (String)applicantsComboBox.getSelectedItem();
+        applicantTokens = interestedApplicantData.split(" ");
+        String updateApplicantStatement = "UPDATE job_application SET status = 'rejected' WHERE application_id = " + applicantTokens[0];
+        ArrayList<String> updateList = new ArrayList<>();
+        updateList.add(updateApplicantStatement);
+        executeDataManipulationStatement(updateList);
+        drawChooseApplicantScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "Accept Applicant") {
+        String[] applicantTokens;
+        interestedApplicantData = (String)applicantsComboBox.getSelectedItem();
+        applicantTokens = interestedApplicantData.split(" ");
+        String updateApplicantStatement = "UPDATE job_application SET status = 'offered' WHERE application_id = " + applicantTokens[0];
+        ArrayList<String> updateList = new ArrayList<>();
+        updateList.add(updateApplicantStatement);
+        executeDataManipulationStatement(updateList);
+        drawChooseApplicantScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "Accept selected job") {
+        String[] jobOfferTokens;
+        jobOfferedData = (String)jobOffersComboBox.getSelectedItem();
+        jobOfferTokens = jobOfferedData.split(" ");
+        String updateApplicantStatement = "UPDATE job_application SET status = 'accepted' WHERE application_id = " + jobOfferTokens[0];
+        ArrayList<String> updateList = new ArrayList<>();
+        updateList.add(updateApplicantStatement);
+        executeDataManipulationStatement(updateList);
         drawJobOffersScreen();
       }
       else {

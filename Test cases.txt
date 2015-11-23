@@ -51,6 +51,11 @@ Accept a job offer service
 	Set up:
 		Drop all tables
 		load AcceptAJobOfferService_TestCase1.xsql
+		From main menu, navigate the following:
+			Find a job
+			select person from list
+			select '1 Athena Mansell' from combobox and click 'Select this person' button
+			view current job offers
 	Expected result: 
 		ComboBox with the following options:
 			1 Registered Nurse ATandT
@@ -62,10 +67,37 @@ Accept a job offer service
 	Set up:
 		Drop all tables
 		load AcceptAJobOfferService_TestCase2.xsql
+		From main menu, navigate the following:
+			Find a job
+			select person from list
+			select '1 Athena Mansell' from combobox and click 'Select this person' button
+			view current job offers
+	Expected result:
+		'Currently, no offers exist.'
+		
+
+Accept an applicant service
+------
+1. 2 companies exist, 1 has two applicants with 2 skills each.
+	Set up:
+		Drop all tables
+		load AcceptAnApplicantService_TestCase1.xsql
+		From main menu, navigate the following:
+			Accept an applicant
+			select company 'ATandT' from combobox and click button 'select company'
 	Expected result: 
-		"Currently, no offers exist."
-
-
+		combobox should contain the following entries:
+			1 Athena Mansell
+			2 Carley Maiorano
+2. 2 companies exist, neither have any applicants.
+	Set up:
+		Drop all tables
+		load AcceptAnApplicantService_TestCase2.xsql
+		From main menu, navigate the following:
+			Accept an applicant
+			select either company from combobox and click button 'select company'
+	Expected result: 
+		"There are currently no applicants."
 Query 9:
 ------
 1. A person with no skills should require all the skills that a particular job requires.

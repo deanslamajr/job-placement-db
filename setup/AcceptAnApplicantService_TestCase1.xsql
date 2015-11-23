@@ -1,0 +1,31 @@
+INSERT INTO person VALUES (1, 'Athena', NULL, 'Mansell', 'amansell@uno.edu', 119, 'Nova  ', NULL, 'Phoenix', 'AZ', 1747336498, 'f')
+INSERT INTO person VALUES (2, 'Carley', NULL, 'Maiorano', 'cmaiorano@uno.edu', 294, 'Reagan  ', NULL, 'Dallas', 'TX', 3492890695, 'm')
+
+INSERT INTO job_profile VALUES(1, 'Retail Salesperson', 'Perform the function of a(n) retail salesperson')
+INSERT INTO job_profile VALUES(2, 'Cashier', 'Perform the function of a(n) cashier')
+
+INSERT INTO sector VALUES (1, 'Basic Materials')
+
+INSERT INTO company VALUES (1, 'ATandT', 'www.ATandT.com', 595, 'Leilani  ', 19, 'New York', 'NY', 8225843819, 1)
+INSERT INTO company VALUES (2, 'Nike', 'www.Nike.com', 797, 'Robbie  ', NULL, 'Los Angeles', 'CA', 6784615321, 1)
+
+INSERT INTO job VALUES(1, 2, 1, 'full-time', 'salary', 121440)
+INSERT INTO job VALUES(2, 1, 1, 'part-time', 'wage', 25.33)
+
+INSERT INTO knowledge_skill VALUES (1, 'Java Programming', 'Advanced understanding of Java Programming', 'advanced')
+INSERT INTO knowledge_skill VALUES (2, 'Databases', 'Advanced understanding of Databases', 'advanced')
+INSERT INTO knowledge_skill VALUES (3, '.NET Programming', 'Advanced understanding of .NET Programming', 'advanced')
+INSERT INTO knowledge_skill VALUES (4, 'Public Speaking', 'Intermediate understanding of Public Speaking', 'intermediate')
+
+INSERT INTO person_ks VALUES(1, 1)
+INSERT INTO person_ks VALUES(1, 2)
+INSERT INTO person_ks VALUES(2, 3)
+INSERT INTO person_ks VALUES(2, 4)
+
+INSERT INTO jp_ks VALUES(1, 1)
+INSERT INTO jp_ks VALUES(1, 2)
+INSERT INTO jp_ks VALUES(2, 3)
+INSERT INTO jp_ks VALUES(2, 4)
+
+INSERT INTO job_application VALUES(1, 1, 1, 'applied')
+INSERT INTO job_application VALUES(2, 2, 2, 'applied')
