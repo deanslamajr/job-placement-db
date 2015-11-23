@@ -14,6 +14,56 @@ To test query:
 6. Assert results match expected results
 
 
+Apply for a job service
+------
+1. A person with enough skills for 5 different jobs should be given the option to apply for any of those 5 jobs.
+	Set up:
+		Drop all tables
+		load ApplyForAJobService_TestCase1.xsql
+		From main menu, navigate the following:
+			find a job
+			select person from list
+			select 1 athena mansell and click button 'select this person'
+			see jobs this person qualifies for
+	Expected result:
+		should see a combobox with the following entries
+			2 cashier
+			3 office clerk
+			4 food preparation worker
+			1 registered nurse
+			5 retail salesperson
+2. A person with no skills should not be given any jobs to apply to
+	Set up:
+		Drop all tables
+		load ApplyForAJobService_TestCase1.xsql
+		From main menu, navigate the following:
+			find a job
+			select person from list
+			select 1 athena mansell and click button 'select this person'
+			see jobs this person qualifies for
+	Expected result:
+			Athena does not currently qualify for any jobs
+
+
+Accept a job offer service
+------
+1. A person has a 5 jobs offered to them
+	Set up:
+		Drop all tables
+		load AcceptAJobOfferService_TestCase1.xsql
+	Expected result: 
+		ComboBox with the following options:
+			1 Registered Nurse ATandT
+			2 Cashier ATandT
+			3 Office Clerk ATandT
+			4 Food Preparation Worker ATandT
+			5 Retail Salesperson ATandT
+2. A person has no jobs offered to them
+	Set up:
+		Drop all tables
+		load AcceptAJobOfferService_TestCase2.xsql
+	Expected result: 
+		"Currently, no offers exist."
 
 
 Query 9:
@@ -110,3 +160,7 @@ Query 13:
 		Choose a job_id: 1
 	Expected result:
 		No courses listed
+
+Query 14:
+------
+1. For a particular job, 

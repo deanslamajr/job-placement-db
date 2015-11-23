@@ -1,3 +1,4 @@
+DROP TABLE job_application
 DROP TABLE works
 DROP TABLE project_job
 DROP TABLE job
@@ -14,6 +15,7 @@ DROP TABLE course_ks
 DROP TABLE knowledge_skill
 DROP TABLE course
 DROP TABLE learning_institution
+DROP SEQUENCE seq_application
 DROP SEQUENCE seq_person
 DROP SEQUENCE seq_sector
 DROP SEQUENCE seq_company
@@ -28,7 +30,6 @@ DROP SEQUENCE seq_job
 CREATE SEQUENCE seq_person MINVALUE 1 START WITH 1 INCREMENT BY 1 CACHE 10
 
 CREATE TABLE person (person_id INT PRIMARY KEY,first_name VARCHAR(50) NOT NULL,middle_name VARCHAR(50),last_name VARCHAR(50) NOT NULL,email_address VARCHAR(100) NOT NULL,street_number INT,street_name VARCHAR(50),apt_number INT,city VARCHAR(50),state VARCHAR(2),zip_code INT,gender VARCHAR(1) CHECK(gender IN ('m','f')))
-
 
 CREATE SEQUENCE seq_sector MINVALUE 1 START WITH 1 INCREMENT BY 1 CACHE 10
 
@@ -71,6 +72,9 @@ CREATE SEQUENCE seq_job MINVALUE 1 START WITH 1 INCREMENT BY 1 CACHE 10
 
 CREATE TABLE job (job_id INT PRIMARY KEY,job_code INT NOT NULL CONSTRAINT job_jobprofile_fkey REFERENCES job_profile (job_code),company_id INT NOT NULL CONSTRAINT job_company_fkey REFERENCES company (company_id),job_type VARCHAR(10) CHECK(job_type IN ('full-time','part-time')),pay_type VARCHAR(10) CHECK(pay_type IN ('wage','salary')),pay_rate NUMBER(10,2))
 
+CREATE SEQUENCE seq_application MINVALUE 1 START WITH 1 INCREMENT BY 1 CACHE 10
+
+CREATE TABLE job_application (application_id INT PRIMARY KEY,person_id INT NOT NULL CONSTRAINT person_id_fkey REFERENCES person (person_id),job_id INT NOT NULL CONSTRAINT job_id_fkey REFERENCES job (job_id),status VARCHAR(10) CHECK(status IN ('applied','offered','accepted','rejected')))
 
 CREATE TABLE course_ks (course_code INT NOT NULL CONSTRAINT cks_course_fkey REFERENCES course (course_code),ks_code INT NOT NULL CONSTRAINT cks_ks_fkey REFERENCES knowledge_skill (ks_code),PRIMARY KEY (course_code, ks_code))
 
