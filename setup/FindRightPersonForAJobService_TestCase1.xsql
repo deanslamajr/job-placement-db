@@ -4,10 +4,15 @@ INSERT INTO person VALUES (3, 'Danial', NULL, 'Battey', 'dbattey@uno.edu', 542, 
 INSERT INTO person VALUES (4, 'Diego', NULL, 'Salamanca', 'dsalamanca@uno.edu', 92, 'Renna  ', NULL, 'Charlotte', 'NC', 3556661187, 'm')
 
 INSERT INTO job_profile VALUES(1, 'Retail Salesperson', 'Perform the function of a(n) retail salesperson')
+INSERT INTO job_profile VALUES(2, 'Customer Service Representative', 'Perform the function of a(n) customer service representative')
 
 INSERT INTO sector VALUES (1, 'Basic Materials')
 
 INSERT INTO company VALUES (1, 'Nike', 'www.Nike.com', 797, 'Robbie  ', NULL, 'Los Angeles', 'CA', 6784615321, 1)
+
+INSERT INTO job VALUES(1, 2, 1, 'full-time', 'salary', 121440)
+INSERT INTO job VALUES(2, 1, 1, 'part-time', 'wage', 25.33)
+INSERT INTO job VALUES(3, 1, 1, 'full-time', 'wage', 36.19)
 
 INSERT INTO knowledge_skill VALUES (1, 'Java Programming', 'Advanced understanding of Java Programming', 'advanced')
 INSERT INTO knowledge_skill VALUES (2, 'Databases', 'Advanced understanding of Databases', 'advanced')

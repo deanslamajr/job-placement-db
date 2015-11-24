@@ -4,6 +4,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JList;
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -139,6 +141,25 @@ public class QueriesDemoGUI extends JFrame {
   private JButton rejectButton;
   private JButton acceptApplicantButton;
 
+  private JPanel chooseJobPanel;
+  private JLabel chooseJobLabel;
+  private JPanel jobSelectionPanel;
+  private JLabel noJobsLabel;
+  private JComboBox<String> jobsComboBox;
+  private JButton createJobButton;
+  private JPanel kQuestionPanel;
+  private JLabel kQuestionLabel;
+  private JLabel kQuestionLabel2;
+  private JPanel kNumberPanel;
+  private JComboBox<Integer> kNumberComboBox;
+  private JButton seePersonsButton;
+
+  private JList<String> qualifiedPersonsList;
+  private JPanel qualifiedPersonsPanel;
+  private JLabel noResultsLabel;
+  private DefaultListModel<String> qualifiedPersonsView;
+
+
   private BufferedReader buffReader;
 
   private String username;
@@ -149,6 +170,8 @@ public class QueriesDemoGUI extends JFrame {
   private String interestedCompanyData;
   private String interestedApplicantData;
   private String jobOfferedData;
+  private String interestedJobData;
+  private int interestedKData;
 
   private int numberOfComboBoxes = 0;
 
@@ -256,6 +279,7 @@ public class QueriesDemoGUI extends JFrame {
 
     fillAnOpeningPanel = new JPanel();
     fillAnOpeningButton = new JButton("Find the right person for a job profile");
+    fillAnOpeningButton.addActionListener(buttonClickHandler);
     fillAnOpeningPanel.add(fillAnOpeningButton);
     add(fillAnOpeningPanel);
 
@@ -575,6 +599,106 @@ public class QueriesDemoGUI extends JFrame {
       lowerPanel.add(acceptApplicantButton);
     }
     add(middlePanel);
+    add(lowerPanel);
+
+    revalidate();
+    repaint();
+  }
+
+  void drawKSkillsMissingScreen() {
+    getContentPane().removeAll();
+
+    setLayout(new GridLayout( 5, 1) );
+
+    chooseJobPanel = new JPanel();
+    chooseJobLabel = new JLabel("Choose the job to fill");
+    chooseJobPanel.add(chooseJobLabel);
+    add(chooseJobPanel);
+
+    String[] companyTokens = interestedCompanyData.split(" ");
+    String jobsQuery = "SELECT distinct j.job_id || ' ' || jp.job_code || ' ' || jp.title FROM job j, job_profile jp WHERE j.job_code = jp.job_code AND j.company_id = " + companyTokens[0];
+    ArrayList<String> jobsForCompanyList = executeQuery(jobsQuery, 1);
+
+    lowerPanel = new JPanel();
+    exitButton = new JButton("Go Back to Manager Services Menu");
+    exitButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(exitButton);
+
+    jobSelectionPanel = new JPanel();
+    if(jobsForCompanyList.size() == 0) {
+      noJobsLabel = new JLabel("No jobs currently available.");
+      jobSelectionPanel.add(noJobsLabel);
+    }
+    else{
+      jobsComboBox = new JComboBox<>();
+      for(String aJob: jobsForCompanyList) {
+        jobsComboBox.addItem(aJob);
+      }
+      jobSelectionPanel.add(jobsComboBox);
+
+      seePersonsButton = new JButton("View Qualified Persons");
+      seePersonsButton.addActionListener(buttonClickHandler);
+      lowerPanel.add(seePersonsButton);
+    }
+    createJobButton = new JButton("Create New Job");
+    jobSelectionPanel.add(createJobButton);
+    add(jobSelectionPanel);
+
+    kQuestionPanel = new JPanel();
+    kQuestionPanel.setLayout(new GridLayout( 2, 1) );
+    kQuestionLabel = new JLabel("How many of the required skills for the job  above");
+    kQuestionLabel2 = new JLabel("are acceptable to be missing by an applicant?");
+    kQuestionPanel.add(kQuestionLabel);
+    kQuestionPanel.add(kQuestionLabel2);
+    add(kQuestionPanel);
+
+    kNumberPanel = new JPanel();
+    kNumberComboBox = new JComboBox<>();
+    for(int i = 1; i <= 5; i++) {
+      kNumberComboBox.addItem(i);
+    }
+    kNumberPanel.add(kNumberComboBox);
+    add(kNumberPanel);
+
+    add(lowerPanel);
+
+    revalidate();
+    repaint();
+  }
+
+  void drawQualifiedPersonsScreen() {
+    getContentPane().removeAll();
+
+    String[] jobInfoTokens = interestedJobData.split(" ");
+
+    setLayout(new GridLayout( 3, 1) );
+
+    mainTitle = new JLabel("Qualified Persons for job " + interestedJobData + " with up to " + interestedKData + " missing skills");
+    add(mainTitle);
+
+    String qualifiedPersonsQuery = "WITH required_ks AS(SELECT ks_code FROM jp_ks WHERE job_code = " + jobInfoTokens[1] + ")SELECT * FROM(SELECT p.person_id || ' ' || p.first_name || ' ' || p.last_name AS name, p.email_address, (SELECT COUNT(DISTINCT ks_code)FROM (SELECT ks_code FROM required_ks MINUS SELECT ks_code FROM person_ks pks WHERE pks.person_id = p.person_id)) as number_missing FROM person p) WHERE number_missing <= " + interestedKData + "ORDER BY number_missing ASC";
+    ArrayList<String> queryResult = executeQuery(qualifiedPersonsQuery, 1);
+
+    qualifiedPersonsPanel = new JPanel();
+    if(queryResult.size() == 0 ) {
+      noResultsLabel = new JLabel("No persons meet the skill requirement for the selected job.");
+      qualifiedPersonsPanel.add(noResultsLabel);
+    }
+    else {
+      qualifiedPersonsView = new DefaultListModel<String>();
+      for(String aPerson: queryResult) {
+        qualifiedPersonsView.addElement(aPerson);
+      }
+      qualifiedPersonsList = new JList<String>(qualifiedPersonsView);
+      qualifiedPersonsPanel.add(qualifiedPersonsList);
+    }
+    add(qualifiedPersonsPanel);
+
+    lowerPanel = new JPanel();
+    exitButton = new JButton("Go back to select job");
+    exitButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(exitButton);
+
     add(lowerPanel);
 
     revalidate();
@@ -1176,11 +1300,22 @@ public class QueriesDemoGUI extends JFrame {
       else if(buttonThatWasClicked.getText() == "Manager Services" || buttonThatWasClicked.getText() == "Go Back To Company Select Menu") {
         drawAcceptApplicantMenu();
       }
+      else if(buttonThatWasClicked.getText() == "Find the right person for a job profile" || buttonThatWasClicked.getText() == "Go back to select job") {
+        drawKSkillsMissingScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "View Qualified Persons") {
+        interestedJobData = (String)jobsComboBox.getSelectedItem();
+        interestedKData = (Integer)kNumberComboBox.getSelectedItem();
+        drawQualifiedPersonsScreen();
+      }
       else if(buttonThatWasClicked.getText() == "Job Assistance Services") {
         drawJobAssistanceServicesScreen();
       }
       else if(buttonThatWasClicked.getText() == "Select company") {
         interestedCompanyData = (String)companiesComboBox.getSelectedItem();
+        drawManagerServicesScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "Go Back to Manager Services Menu") {
         drawManagerServicesScreen();
       }
       else if(buttonThatWasClicked.getText() == "Accept an applicant") {
