@@ -98,6 +98,13 @@ Accept an applicant service
 			select either company from combobox and click button 'select company'
 	Expected result: 
 		"There are currently no applicants."
+
+Find the Right Person for a Job Service
+------
+1. A job profile that requires skills A, B and C. Person1 has skills ABC, Person2 has skills AB, Person3 has skills A, Person4 has no skills.
+
+2. A job profile that requires skills A, B and C. Person1 has skills DEF, Person2 has skills DE, Person3 has skills D, Person4 has no skills.
+
 Query 9:
 ------
 1. A person with no skills should require all the skills that a particular job requires.

@@ -87,25 +87,25 @@ public class QueriesDemoGUI extends JFrame {
 
   private JPanel findJobPanel;
   private JButton findJobButton;
-  private JPanel acceptAnApplicantPanel;
-  private JButton acceptAnApplicantButton;
-  private JPanel fillAnOpeningPanel;
-  private JButton fillAnOpeningButton;
+  private JPanel managerServicesPanel;
+  private JButton managerServicesButton;
+  private JPanel jobAssistanceServicesPanel;
+  private JButton jobAssistanceServicesButton;
+
   private JPanel evaluateBusinessSectorsPanel;
   private JButton evaluateBusinessSectorsButton;
   private JPanel trainingOptimizationsPanel;
   private JButton trainingOptimizationsButton;
 
-  private JLabel firstInstruction;
-  private JPanel firstInstructionPanel;
-  private JPanel personFromListPanel;
-  private JButton personFromListButton;
-  private JPanel newPersonPanel;
-  private JButton newPersonButton;
+  private JPanel acceptAnApplicantPanel;
+  private JButton acceptAnApplicantButton;
+  private JPanel fillAnOpeningPanel;
+  private JButton fillAnOpeningButton;  
 
   private JComboBox<String> personsComboBox;
   private JButton selectPersonButton;
   private JPanel personsListPanel;
+  private JButton newPersonButton;
 
   private JButton applyForJobButton;
   private JPanel applyForJobPanel;
@@ -176,37 +176,28 @@ public class QueriesDemoGUI extends JFrame {
   void drawMainMenu() {
     getContentPane().removeAll();
 
-    setLayout(new GridLayout( 7, 1) );
+    setLayout(new GridLayout( 5, 1) );
 
     mainTitle = new JLabel("Main Menu");
     add(mainTitle);
 
     findJobPanel = new JPanel();
-    findJobButton = new JButton("Find a job");
+    findJobButton = new JButton("Worker Services");
     findJobPanel.add(findJobButton);
     findJobButton.addActionListener(buttonClickHandler);
     add(findJobPanel);
 
-    acceptAnApplicantPanel = new JPanel();
-    acceptAnApplicantButton = new JButton("Accept an applicant");
-    acceptAnApplicantButton.addActionListener(buttonClickHandler);
-    acceptAnApplicantPanel.add(acceptAnApplicantButton);
-    add(acceptAnApplicantPanel);
+    managerServicesPanel = new JPanel();
+    managerServicesButton = new JButton("Manager Services");
+    managerServicesPanel.add(managerServicesButton);
+    managerServicesButton.addActionListener(buttonClickHandler);
+    add(managerServicesPanel);
 
-    fillAnOpeningPanel = new JPanel();
-    fillAnOpeningButton = new JButton("Find the right person for a job profile");
-    fillAnOpeningPanel.add(fillAnOpeningButton);
-    add(fillAnOpeningPanel);
-
-    evaluateBusinessSectorsPanel = new JPanel();
-    evaluateBusinessSectorsButton = new JButton("Evaluate the opportunities in all business sectors");
-    evaluateBusinessSectorsPanel.add(evaluateBusinessSectorsButton);
-    add(evaluateBusinessSectorsPanel);
-
-    trainingOptimizationsPanel = new JPanel();
-    trainingOptimizationsButton = new JButton("Training optimizations");
-    trainingOptimizationsPanel.add(trainingOptimizationsButton);
-    add(trainingOptimizationsPanel);
+    jobAssistanceServicesPanel = new JPanel();
+    jobAssistanceServicesButton = new JButton("Job Assistance Services");
+    jobAssistanceServicesPanel.add(jobAssistanceServicesButton);
+    jobAssistanceServicesButton.addActionListener(buttonClickHandler);
+    add(jobAssistanceServicesPanel);
 
     updateButton = new JButton("Options");
     updateButton.addActionListener(buttonClickHandler);
@@ -221,33 +212,56 @@ public class QueriesDemoGUI extends JFrame {
     repaint();
   }
 
-  void drawFindJobMenu() {
+  void drawJobAssistanceServicesScreen() {
     getContentPane().removeAll();
 
-    setLayout(new GridLayout( 7, 1) );
+    setLayout(new GridLayout( 4, 1) );
 
-    mainTitle = new JLabel("Job Hunter");
+    mainTitle = new JLabel("Manager Services Menu");
     add(mainTitle);
 
-    firstInstruction = new JLabel("Who are you?");
-    firstInstructionPanel = new JPanel();
-    firstInstructionPanel.add(firstInstruction);
-    add(firstInstructionPanel);
+    evaluateBusinessSectorsPanel = new JPanel();
+    evaluateBusinessSectorsButton = new JButton("Evaluate the opportunities in all business sectors");
+    evaluateBusinessSectorsPanel.add(evaluateBusinessSectorsButton);
+    add(evaluateBusinessSectorsPanel);
 
-    personFromListPanel = new JPanel();
-    personFromListButton = new JButton("Select person from list");
-    personFromListButton.addActionListener(buttonClickHandler);
-    personFromListPanel.add(personFromListButton);
-    add(personFromListPanel);
-
-    newPersonPanel = new JPanel();
-    newPersonButton = new JButton("Add a new person");
-    newPersonPanel.add(newPersonButton);
-    add(newPersonPanel);
+    trainingOptimizationsPanel = new JPanel();
+    trainingOptimizationsButton = new JButton("Training optimizations");
+    trainingOptimizationsPanel.add(trainingOptimizationsButton);
+    add(trainingOptimizationsPanel);
 
     lowerPanel = new JPanel();
     exitButton = new JButton("Go Back To Main Menu");
     exitButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(exitButton);
+    add(lowerPanel);
+
+    revalidate();
+    repaint();
+  }
+
+  void drawManagerServicesScreen() {
+    getContentPane().removeAll();
+
+    setLayout(new GridLayout( 4, 1) );
+
+    mainTitle = new JLabel("Manager Services Menu");
+    add(mainTitle);
+
+    acceptAnApplicantPanel = new JPanel();
+    acceptAnApplicantButton = new JButton("Accept an applicant");
+    acceptAnApplicantButton.addActionListener(buttonClickHandler);
+    acceptAnApplicantPanel.add(acceptAnApplicantButton);
+    add(acceptAnApplicantPanel);
+
+    fillAnOpeningPanel = new JPanel();
+    fillAnOpeningButton = new JButton("Find the right person for a job profile");
+    fillAnOpeningPanel.add(fillAnOpeningButton);
+    add(fillAnOpeningPanel);
+
+    exitButton = new JButton("Go Back To Company Select Menu");
+    exitButton.addActionListener(buttonClickHandler);
+    lowerPanel = new JPanel();
     lowerPanel.add(exitButton);
     add(lowerPanel);
 
@@ -262,7 +276,7 @@ public class QueriesDemoGUI extends JFrame {
 
     setLayout(new GridLayout( 3, 1) );
 
-    mainTitle = new JLabel("Select a person from the list");
+    mainTitle = new JLabel("Who are you?");
     add(mainTitle);
 
     peopleFromDB = executeQuery("select PERSON_ID || ' ' || FIRST_NAME || ' ' || MIDDLE_NAME || ' ' || LAST_NAME from person", 1);
@@ -272,10 +286,12 @@ public class QueriesDemoGUI extends JFrame {
     }
     personsListPanel = new JPanel();
     personsListPanel.add(personsComboBox);
+    newPersonButton = new JButton("Add a new person");
+    personsListPanel.add(newPersonButton);
     add(personsListPanel);
 
     lowerPanel = new JPanel();
-    exitButton = new JButton("Go Back To Find Job Menu");
+    exitButton = new JButton("Go Back To Main Menu");
     exitButton.addActionListener(buttonClickHandler);
     lowerPanel.add(exitButton);
     selectPersonButton = new JButton("Select this person");
@@ -472,7 +488,7 @@ public class QueriesDemoGUI extends JFrame {
 
     setLayout(new GridLayout( 3, 1) );
 
-    mainTitle = new JLabel("Select a company");
+    mainTitle = new JLabel("Select the company you manage");
     add(mainTitle);
 
     String queryCompanies = "SELECT company_id || ' ' || name FROM company";
@@ -533,7 +549,7 @@ public class QueriesDemoGUI extends JFrame {
     ArrayList<String> listOfApplicants = executeQuery(applicantsQuery, 1);
 
     lowerPanel = new JPanel();
-    exitButton = new JButton("Go Back To Company Select Menu");
+    exitButton = new JButton("Go Back To Manager Services Menu");
     exitButton.addActionListener(buttonClickHandler);
     lowerPanel.add(exitButton);
 
@@ -1137,10 +1153,7 @@ public class QueriesDemoGUI extends JFrame {
       else if(buttonThatWasClicked.getText() == "Generate random data for a table") {
         drawGenerateDataScreen();
       }
-      else if(buttonThatWasClicked.getText() == "Find a job" || buttonThatWasClicked.getText() == "Go Back To Find Job Menu") {
-        drawFindJobMenu();
-      }
-      else if(buttonThatWasClicked.getText() == "Select person from list" || buttonThatWasClicked.getText() == "Go Back To Person Select Menu") {
+      else if(buttonThatWasClicked.getText() == "Worker Services" || buttonThatWasClicked.getText() == "Go Back To Person Select Menu") {
         drawSelectPersonScreen();
       }
       else if(buttonThatWasClicked.getText() == "Select this person") {
@@ -1160,12 +1173,21 @@ public class QueriesDemoGUI extends JFrame {
       else if(buttonThatWasClicked.getText() == "View current job offers") {
         drawJobOffersScreen();
       }
-      else if(buttonThatWasClicked.getText() == "Accept an applicant" || buttonThatWasClicked.getText() == "Go Back To Company Select Menu") {
+      else if(buttonThatWasClicked.getText() == "Manager Services" || buttonThatWasClicked.getText() == "Go Back To Company Select Menu") {
         drawAcceptApplicantMenu();
+      }
+      else if(buttonThatWasClicked.getText() == "Job Assistance Services") {
+        drawJobAssistanceServicesScreen();
       }
       else if(buttonThatWasClicked.getText() == "Select company") {
         interestedCompanyData = (String)companiesComboBox.getSelectedItem();
+        drawManagerServicesScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "Accept an applicant") {
         drawChooseApplicantScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "Go Back To Manager Services Menu") {
+        drawManagerServicesScreen();
       }
       else if(buttonThatWasClicked.getText() == "Reject Applicant") {
         String[] applicantTokens;
