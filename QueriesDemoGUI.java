@@ -869,7 +869,7 @@ public class QueriesDemoGUI extends JFrame {
     add(chooseJobPanel);
 
     String[] companyTokens = interestedCompanyData.split(" ");
-    String jobsQuery = "SELECT distinct j.job_id || ' ' || jp.job_code || ' ' || jp.title FROM job j, job_profile jp WHERE j.job_code = jp.job_code AND j.company_id = 1" + companyTokens[0];
+    String jobsQuery = "SELECT distinct j.job_id || ' ' || jp.job_code || ' ' || jp.title FROM job j, job_profile jp WHERE j.job_code = jp.job_code AND j.company_id = " + companyTokens[0];
     ArrayList<String> jobsForCompanyList = executeQuery(jobsQuery, 1);
 
     lowerPanel = new JPanel();

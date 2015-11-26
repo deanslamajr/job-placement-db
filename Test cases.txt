@@ -1,17 +1,9 @@
-Test cases
+Tests
 
 
-To test query:
-1. Setup database by clicking on 'UPDATE DB'
-	a. clear database by clicking on 'Drop all rows from all tables'
-	b. call insertion script for particular test case by 
-		A. clicking on 'Execute an insertion script form file...'
-		B. selecting the appropriate testcase .xsql setup file
-2. Click 'Go Back To Main Menu'
-3. Click on the button corresponding to the number of query under test
-4. Set up the combo boxes according to test case
-5. Run query by clicking 'Execute Query'
-6. Assert results match expected results
+SERVICES TEST CASES
+##############
+--------------
 
 
 Apply for a job service
@@ -31,6 +23,7 @@ Apply for a job service
 			4 food preparation worker
 			1 registered nurse
 			5 retail salesperson
+
 2. A person with no skills should not be given any jobs to apply to
 	Set up:
 		Drop all tables
@@ -60,6 +53,7 @@ Accept a job offer service
 			3 Office Clerk ATandT
 			4 Food Preparation Worker ATandT
 			5 Retail Salesperson ATandT
+
 2. A person has no jobs offered to them
 	Set up:
 		Drop all tables
@@ -97,12 +91,13 @@ Accept an applicant service
 	Expected result: 
 		"There are currently no applicants."
 
+
 Find the Right Person for a Job Service
 ------
 1. A job profile that requires skills A, B and C. Person1 has skills ABC, Person2 has skills AB, Person3 has skills A, Person4 has no skills.
 	Set up:
 		Drop all tables
-		load FindRightPersonForAJobService_TestCase1
+		load FindRightPersonForAJobService_TestCase1.xsql
 		From main menu, navigate the following:
 			Manager Services
 			select company '1 Nike' from combobox and click button 'select company'
@@ -112,24 +107,70 @@ Find the Right Person for a Job Service
 		list box should contain the following entries:
 			1 Athena Mansell
 			2 Carley Maiorano
+
 2. A job profile that requires skills A, B, C, D, E, F, and G. Person1 has skills EFG, Person2 has skills FG, Person3 has skills G, Person4 has no skills.
-	Works on sql*plus, doesn't work with JDBC :(
+	Set up:
+		Drop all tables
+		load FindRightPersonForAJobService_TestCase2.xsql
+		From main menu, navigate the following:
+			Manager Services
+			select company '1 Nike' from combobox and click button 'select company'
+			Find the right person for a job profile
+			Select a number in the combobox
+			Click 'View Qualified Persons'
+	Expected result: 
+		If 5 is selected in combobox:
+			1 Athena Mansell
+			2 Carley Maiorano
+		If 4 is selected in combobox
+			1 Athena Mansell
+		If 3 or lower is selected in combobox
+			'No persons meet the skill requirement for the selected job'
+
 
 Evaluate the opportunities in all business sectors:
 ------
 1. 3 sectors exist, each with 2 companies, each company has 2 jobs. Of the 2 jobs at each company, only one is available while the other has already been filled. Some of the available jobs have previously been filled but are once again open while others have never been worked before.
 	Set up:
-
+		Drop all tables
+		load EvaluateOpportunitiesInAllBusinessSectorsService_TestCase1.xsql
+		From main menu, navigate the following:
+			Job assistance services
+			evaluate the opportunities in all business sectors
+			select a sector from the combobox and click 'select this sector' button
 	Expected result:
-		Each sector should reveal having 2 jobs.
+		Each sector should reveal 2 job openings.
 
 2. 3 sectors exist, 1st sector has 1 company with 2 jobs with that are both already occupied, 2nd sector has 1 company with 0 jobs, and the 3rd sector has no companies.
 	Set up:
-
+		Drop all tables
+		load EvaluateOpportunitiesInAllBusinessSectorsService_TestCase2.xsql
+		From main menu, navigate the following:
+			Job assistance services
+			evaluate the opportunities in all business sectors
+			select a sector from the combobox and click 'select this sector' button
 	Expected result:
 		1st sector has 2 jobs
 		2nd sector has 0 jobs
 		3rd sector has 0 jobs
+
+
+QUERIES TEST CASES
+##############
+--------------
+
+To test query:
+1. Setup database by clicking on 'UPDATE DB'
+	a. clear database by clicking on 'Drop all rows from all tables'
+	b. call insertion script for particular test case by 
+		A. clicking on 'Execute an insertion script form file...'
+		B. selecting the appropriate testcase .xsql setup file
+2. Click 'Go Back To Main Menu'
+3. Click on the button corresponding to the number of query under test
+4. Set up the combo boxes according to test case
+5. Run query by clicking 'Execute Query'
+6. Assert results match expected results
+
 
 Query 9:
 ------
