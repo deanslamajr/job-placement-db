@@ -1,0 +1,18 @@
+INSERT INTO sector VALUES (1, 'Basic Materials')
+INSERT INTO sector VALUES (2, 'Conglomerates')
+INSERT INTO sector VALUES (3, 'Consumer Goods')
+
+INSERT INTO company VALUES (1, 'ATandT', 'www.ATandT.com', 595, 'Leilani  ', 19, 'New York', 'NY', 8225843819, 1)
+INSERT INTO company VALUES (2, 'Volkswagen', 'www.Volkswagen.com', 794, 'Eldridge  ', 13, 'Chicago', 'IL', 6815580397, 2)
+
+INSERT INTO job_profile VALUES(1, 'Retail Salesperson', 'Perform the function of a(n) retail salesperson')
+INSERT INTO job_profile VALUES(2, 'Cashier', 'Perform the function of a(n) cashier')
+
+INSERT INTO job VALUES(1, 1, 1, 'full-time', 'salary', 121440)
+INSERT INTO job VALUES(2, 2, 1, 'part-time', 'wage', 25.33)
+
+INSERT INTO person VALUES (1, 'Abraham', NULL, 'Rosier', 'arosier@uno.edu', 804, 'Yu  ', NULL, 'New York', 'NY', 3551858113, NULL)
+INSERT INTO person VALUES (2, 'Adrianne', NULL, 'Mirabito', 'amirabito@uno.edu', 977, 'Anh  ', 6, 'Los Angeles', 'CA', 7393679022, 'm')
+
+INSERT INTO works VALUES(1, 1, TO_DATE('12301899','MMDDYYYY') + 40619, NULL)
+INSERT INTO works VALUES(2, 2, TO_DATE('12301899','MMDDYYYY') + 40668, NULL)

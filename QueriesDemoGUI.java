@@ -5,7 +5,10 @@ import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JList;
+import javax.swing.ListSelectionModel;
 import javax.swing.DefaultListModel;
+import javax.swing.JTextField;
+import javax.swing.JOptionPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -99,6 +102,15 @@ public class QueriesDemoGUI extends JFrame {
   private JPanel trainingOptimizationsPanel;
   private JButton trainingOptimizationsButton;
 
+  private JPanel businessSectorsPanel;
+  private JLabel noSectorsLabel;
+  private JComboBox<String> businessSectorsComboBox;
+  private JButton selectSectorButton;
+
+  private JPanel jobOpportunitiesPanel;
+  private DefaultListModel<String> jobOpportunitiesView;
+  private JList<String> jobOpportunitiesList;
+
   private JPanel acceptAnApplicantPanel;
   private JButton acceptAnApplicantButton;
   private JPanel fillAnOpeningPanel;
@@ -109,6 +121,46 @@ public class QueriesDemoGUI extends JFrame {
   private JPanel personsListPanel;
   private JButton newPersonButton;
 
+  private JPanel firstNamePanel;
+  private JLabel firstNameLabel;
+  private JPanel firstNamePanelInner;
+  private JTextField firstNameField;
+  private JPanel middleNamePanel;
+  private JLabel middleNameLabel;
+  private JPanel middleNamePanelInner;
+  private JTextField middleNameField;
+  private JPanel lastNamePanel;
+  private JLabel lastNameLabel;
+  private JPanel lastNamePanelInner;
+  private JTextField lastNameField;
+  private JLabel genderLabel;
+  private JPanel genderPanel;
+  private JComboBox<String> genderComboBox;
+  private JPanel emailPanel;
+  private JLabel emailLabel;
+  private JPanel emailPanelInner;
+  private JTextField emailField;
+  private JPanel addressPanel;
+  private JPanel addyNumberPanelInner;
+  private JLabel addyNumberLabel;
+  private JTextField addyNumberField;
+  private JPanel addyNamePanelInner;
+  private JLabel addyNameLabel;
+  private JTextField addyNameField;
+  private JLabel aptNumberLabel;
+  private JPanel aptNumberPanelInner;
+  private JTextField aptNumberField;
+  private JPanel cityStateZipPanel;
+  private JPanel cityPanelInner;
+  private JLabel cityLabel;
+  private JTextField cityField;
+  private JPanel statePanelInner;
+  private JLabel stateLabel;
+  private JTextField stateField;
+  private JLabel zipcodeLabel;
+  private JPanel zipcodePanelInner;
+  private JTextField zipcodeField;
+
   private JButton applyForJobButton;
   private JPanel applyForJobPanel;
   private JButton viewOffersButton;
@@ -116,6 +168,7 @@ public class QueriesDemoGUI extends JFrame {
 
   private JComboBox<String> qualifiedJobsComboBox;
   private JPanel qualifiedJobsPanel;
+  private JLabel noQualifiesJobsLabel;
   private JButton applyButton;
 
   private JLabel infoLabel;
@@ -158,20 +211,23 @@ public class QueriesDemoGUI extends JFrame {
   private JPanel qualifiedPersonsPanel;
   private JLabel noResultsLabel;
   private DefaultListModel<String> qualifiedPersonsView;
-
+  private JButton makeOfferButton;
 
   private BufferedReader buffReader;
 
   private String username;
   private String password;
 
+  // Global Data stores
   private String interestedPersonsData;
   private String jobToApplyToData;
   private String interestedCompanyData;
   private String interestedApplicantData;
   private String jobOfferedData;
   private String interestedJobData;
+  private String interestedSector;
   private int interestedKData;
+  private Person personStore;
 
   private int numberOfComboBoxes = 0;
 
@@ -245,6 +301,7 @@ public class QueriesDemoGUI extends JFrame {
 
     evaluateBusinessSectorsPanel = new JPanel();
     evaluateBusinessSectorsButton = new JButton("Evaluate the opportunities in all business sectors");
+    evaluateBusinessSectorsButton.addActionListener(buttonClickHandler);
     evaluateBusinessSectorsPanel.add(evaluateBusinessSectorsButton);
     add(evaluateBusinessSectorsPanel);
 
@@ -255,6 +312,84 @@ public class QueriesDemoGUI extends JFrame {
 
     lowerPanel = new JPanel();
     exitButton = new JButton("Go Back To Main Menu");
+    exitButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(exitButton);
+    add(lowerPanel);
+
+    revalidate();
+    repaint();
+  }
+
+  void drawSectorsOpportunitiesScreen() {
+    getContentPane().removeAll();
+
+    setLayout(new GridLayout( 3, 1) );
+
+    mainTitle = new JLabel("Select a Business Sector");
+    add(mainTitle);
+
+    lowerPanel = new JPanel();
+    exitButton = new JButton("Go Back To Main Menu");
+    exitButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(exitButton);
+
+    businessSectorsPanel = new JPanel();
+
+    String businessSectorsQuery = "SELECT sector_id || ' ' || name FROM sector";
+    ArrayList<String> businessSectors = executeQuery(businessSectorsQuery, 1);
+    if(businessSectors.size() == 0) {
+      noSectorsLabel = new JLabel("Currently, there are no business sectors available to choose from.");
+      businessSectorsPanel.add(noSectorsLabel);
+    }
+    else {
+      businessSectorsComboBox = new JComboBox<>();
+      for(String aSector: businessSectors) {
+        businessSectorsComboBox.addItem(aSector);
+      }
+      businessSectorsPanel.add(businessSectorsComboBox);
+
+      selectSectorButton = new JButton("Select this sector");
+      selectSectorButton.addActionListener(buttonClickHandler);
+      lowerPanel.add(selectSectorButton);
+    }
+    add(businessSectorsPanel);
+
+    add(lowerPanel);
+
+    revalidate();
+    repaint();
+  }
+
+  void drawJobOpportunitiesScreen() {
+    getContentPane().removeAll();
+
+    String[] sectorTokens = interestedSector.split(" ");
+
+    setLayout(new GridLayout( 3, 1) );
+
+    mainTitle = new JLabel("Available job opportunies in the " + sectorTokens[1] + " sector");
+    add(mainTitle);
+
+    String jobOpportunitiesQuery = "select distinct jp.title || ' @ ' || c.name from job j, company c, job_profile jp, works w where c.sector_id = " + sectorTokens[0] + " and j.company_id = c.company_id and jp.job_code = j.job_code minus select distinct jp.title || ' @ ' || c.name from job j, company c, job_profile jp, works w where c.sector_id = " + sectorTokens[0] + " and j.company_id = c.company_id and j.job_id = w.job_id and w.end_date is null and jp.job_code = j.job_code";
+    ArrayList<String> queryResult = executeQuery(jobOpportunitiesQuery, 1);
+
+    jobOpportunitiesPanel = new JPanel();
+    if(queryResult.size() == 0 ) {
+      noResultsLabel = new JLabel("There are currently no job opportunities in this sector.");
+      jobOpportunitiesPanel.add(noResultsLabel);
+    }
+    else {
+      jobOpportunitiesView = new DefaultListModel<String>();
+      for(String aJob: queryResult) {
+        jobOpportunitiesView.addElement(aJob);
+      }
+      jobOpportunitiesList = new JList<String>(jobOpportunitiesView);
+      jobOpportunitiesPanel.add(jobOpportunitiesList);
+    }
+    add(jobOpportunitiesPanel);
+
+    lowerPanel = new JPanel();
+    exitButton = new JButton("Go back to select sector");
     exitButton.addActionListener(buttonClickHandler);
     lowerPanel.add(exitButton);
     add(lowerPanel);
@@ -311,6 +446,7 @@ public class QueriesDemoGUI extends JFrame {
     personsListPanel = new JPanel();
     personsListPanel.add(personsComboBox);
     newPersonButton = new JButton("Add a new person");
+    newPersonButton.addActionListener(buttonClickHandler);
     personsListPanel.add(newPersonButton);
     add(personsListPanel);
 
@@ -319,6 +455,116 @@ public class QueriesDemoGUI extends JFrame {
     exitButton.addActionListener(buttonClickHandler);
     lowerPanel.add(exitButton);
     selectPersonButton = new JButton("Select this person");
+    selectPersonButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(selectPersonButton);
+    add(lowerPanel);
+
+    revalidate();
+    repaint();
+  }
+
+  void drawCreatePersonScreen() {
+    getContentPane().removeAll();
+
+    setLayout(new GridLayout( 9, 1) );
+
+    mainTitle = new JLabel("Add new person to database");
+    add(mainTitle);
+
+    firstNamePanel = new JPanel();
+    firstNamePanelInner = new JPanel();
+    firstNameLabel = new JLabel("First name");
+    firstNamePanelInner.add(firstNameLabel);
+    firstNameField = new JTextField(25);
+    firstNamePanel.add(firstNamePanelInner);
+    firstNamePanel.add(firstNameField);
+    add(firstNamePanel);
+
+    middleNamePanel = new JPanel();
+    middleNamePanelInner = new JPanel();
+    middleNameLabel = new JLabel("middle name");
+    middleNamePanelInner.add(middleNameLabel);
+    middleNameField = new JTextField(25);
+    middleNamePanel.add(middleNamePanelInner);
+    middleNamePanel.add(middleNameField);
+    add(middleNamePanel);
+
+    lastNamePanel = new JPanel();
+    lastNamePanelInner = new JPanel();
+    lastNameLabel = new JLabel("last name");
+    lastNamePanelInner.add(lastNameLabel);
+    lastNameField = new JTextField(25);
+    lastNamePanel.add(lastNamePanelInner);
+    lastNamePanel.add(lastNameField);
+    add(lastNamePanel);
+
+    genderPanel = new JPanel();
+    genderLabel = new JLabel("Gender");
+    genderPanel.add(genderLabel);
+    genderComboBox = new JComboBox<String>();
+    genderComboBox.addItem("f");
+    genderComboBox.addItem("m");
+    genderPanel.add(genderComboBox);
+    add(genderPanel);
+
+    emailPanel = new JPanel();
+    emailPanelInner = new JPanel();
+    emailLabel = new JLabel("email address");
+    emailPanelInner.add(emailLabel);
+    emailField = new JTextField(25);
+    emailPanel.add(emailPanelInner);
+    emailPanel.add(emailField);
+    add(emailPanel);
+
+    addressPanel = new JPanel();
+    addressPanel.setLayout(new GridLayout( 3, 2) );
+    addyNumberPanelInner = new JPanel();
+    addyNumberLabel = new JLabel("Street Number");
+    addyNumberPanelInner.add(addyNumberLabel);
+    addyNumberField = new JTextField(10);
+    addyNamePanelInner = new JPanel();
+    addyNameLabel = new JLabel("Street Name");
+    addyNamePanelInner.add(addyNameLabel);
+    addyNameField = new JTextField(25);
+    aptNumberPanelInner = new JPanel();
+    aptNumberLabel = new JLabel("Apt Number");
+    aptNumberPanelInner.add(aptNumberLabel);
+    aptNumberField = new JTextField(25);
+    addressPanel.add(addyNumberPanelInner);
+    addressPanel.add(addyNumberField);
+    addressPanel.add(addyNamePanelInner);
+    addressPanel.add(addyNameField);
+    addressPanel.add(aptNumberPanelInner);
+    addressPanel.add(aptNumberField);
+    add(addressPanel);
+
+    cityStateZipPanel = new JPanel();
+    cityStateZipPanel.setLayout(new GridLayout( 3, 2) );
+    cityPanelInner = new JPanel();
+    cityLabel = new JLabel("City");
+    cityPanelInner.add(cityLabel);
+    cityField = new JTextField(10);
+    statePanelInner = new JPanel();
+    stateLabel = new JLabel("State");
+    statePanelInner.add(stateLabel);
+    stateField = new JTextField(25);
+    zipcodePanelInner = new JPanel();
+    zipcodeLabel = new JLabel("ZipCode");
+    zipcodePanelInner.add(zipcodeLabel);
+    zipcodeField = new JTextField(25);
+    cityStateZipPanel.add(cityPanelInner);
+    cityStateZipPanel.add(cityField);
+    cityStateZipPanel.add(statePanelInner);
+    cityStateZipPanel.add(stateField);
+    cityStateZipPanel.add(zipcodePanelInner);
+    cityStateZipPanel.add(zipcodeField);
+    add(cityStateZipPanel);
+
+    lowerPanel = new JPanel();
+    exitButton = new JButton("Go Back To Person Select Menu");
+    exitButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(exitButton);
+    selectPersonButton = new JButton("Add person");
     selectPersonButton.addActionListener(buttonClickHandler);
     lowerPanel.add(selectPersonButton);
     add(lowerPanel);
@@ -371,33 +617,37 @@ public class QueriesDemoGUI extends JFrame {
     mainTitle = new JLabel(personDataTokens[1] + " " + personDataTokens[2] + " has the necessary skills to apply for the following jobs:");
     add(mainTitle);
 
-    try {
-      personId = Integer.parseInt(personDataTokens[0]);
-      qualifiedJobs = retrieveQualifiedJobs(personId);
-      if(qualifiedJobs.size() == 0) {
-        qualifiedJobs.add(personDataTokens[1] + " " + personDataTokens[2] + " does not currently qualify for any jobs");
-      }
-    }
-    catch(NumberFormatException e){
-      qualifiedJobs = new ArrayList<>();
-      qualifiedJobs.add("Error retrieving job data for " + interestedPersonsData);
-    }
-
-    qualifiedJobsComboBox = new JComboBox<>();
-    for(String aJob: qualifiedJobs) {
-      qualifiedJobsComboBox.addItem(aJob);
-    }
     qualifiedJobsPanel = new JPanel();
-    qualifiedJobsPanel.add(qualifiedJobsComboBox);
-    add(qualifiedJobsPanel);
 
     lowerPanel = new JPanel();
     exitButton = new JButton("Go Back To Action Select Menu");
     exitButton.addActionListener(buttonClickHandler);
     lowerPanel.add(exitButton);
-    applyButton = new JButton("Apply for selected job");
-    applyButton.addActionListener(buttonClickHandler);
-    lowerPanel.add(applyButton);
+
+    try {
+      personId = Integer.parseInt(personDataTokens[0]);
+      qualifiedJobs = retrieveQualifiedJobs(personId);
+    }
+    catch(NumberFormatException e){
+      qualifiedJobs = new ArrayList<>();;
+    }
+    if(qualifiedJobs.size() == 0) {
+      noQualifiesJobsLabel = new JLabel(personDataTokens[1] + " " + personDataTokens[2] + " does not currently qualify for any jobs");
+      qualifiedJobsPanel.add(noQualifiesJobsLabel);
+    }
+    else {
+      qualifiedJobsComboBox = new JComboBox<>();
+      for(String aJob: qualifiedJobs) {
+        qualifiedJobsComboBox.addItem(aJob);
+      }
+      qualifiedJobsPanel.add(qualifiedJobsComboBox);
+
+      applyButton = new JButton("Apply for selected job");
+      applyButton.addActionListener(buttonClickHandler);
+      lowerPanel.add(applyButton);
+    }
+    add(qualifiedJobsPanel);
+
     add(lowerPanel);
 
     revalidate();
@@ -428,7 +678,6 @@ public class QueriesDemoGUI extends JFrame {
   }
 
   void drawJobAppliedForScreen() {
-    int nextJobApplication;
     ArrayList<String> updateList;
     String[] jobToApplyToTokens = jobToApplyToData.split(" ");
     String[] personDataTokens = interestedPersonsData.split(" ");
@@ -437,18 +686,9 @@ public class QueriesDemoGUI extends JFrame {
 
     setLayout(new GridLayout( 2, 1) );
 
-    String currentJobApplicationNumberQuery = "SELECT MAX(application_id) FROM job_application";
-    ArrayList<String> mostRecentJobApplication = executeQuery(currentJobApplicationNumberQuery, 1);
-    try{
-      nextJobApplication = Integer.parseInt(mostRecentJobApplication.get(0)) + 1;
-    }
-    catch(NumberFormatException e) {
-      nextJobApplication = 1;
-    }
-
     jobToApplyToTokens = jobToApplyToData.split(" ");
     updateList = new ArrayList<>(1);
-    updateList.add("INSERT INTO job_application VALUES(" + nextJobApplication + ", " + personDataTokens[0] + ", " + jobToApplyToTokens[0] + ", 'applied')");
+    updateList.add("INSERT INTO job_application VALUES(" + nextDBIndex("application_id", "job_application") + ", " + personDataTokens[0] + ", " + jobToApplyToTokens[0] + ", 'applied')");
     executeDataManipulationStatement(updateList);
 
     infoLabel = new JLabel(interestedPersonsData + " has applied for the job " + jobToApplyToData);
@@ -464,6 +704,19 @@ public class QueriesDemoGUI extends JFrame {
 
     revalidate();
     repaint();
+  }
+
+  int nextDBIndex(String interestedAttribute, String interestedTable) {
+    int nextIndex;
+    String currentIndexQuery = "SELECT MAX(" + interestedAttribute + ") FROM " + interestedTable;
+    ArrayList<String> currentIndex = executeQuery(currentIndexQuery, 1);
+    try{
+      nextIndex = Integer.parseInt(currentIndex.get(0)) + 1;
+    }
+    catch(NumberFormatException e) {
+      nextIndex = 1;
+    }
+    return nextIndex;
   }
 
   void drawJobOffersScreen() {
@@ -616,7 +869,7 @@ public class QueriesDemoGUI extends JFrame {
     add(chooseJobPanel);
 
     String[] companyTokens = interestedCompanyData.split(" ");
-    String jobsQuery = "SELECT distinct j.job_id || ' ' || jp.job_code || ' ' || jp.title FROM job j, job_profile jp WHERE j.job_code = jp.job_code AND j.company_id = " + companyTokens[0];
+    String jobsQuery = "SELECT distinct j.job_id || ' ' || jp.job_code || ' ' || jp.title FROM job j, job_profile jp WHERE j.job_code = jp.job_code AND j.company_id = 1" + companyTokens[0];
     ArrayList<String> jobsForCompanyList = executeQuery(jobsQuery, 1);
 
     lowerPanel = new JPanel();
@@ -646,7 +899,7 @@ public class QueriesDemoGUI extends JFrame {
 
     kQuestionPanel = new JPanel();
     kQuestionPanel.setLayout(new GridLayout( 2, 1) );
-    kQuestionLabel = new JLabel("How many of the required skills for the job  above");
+    kQuestionLabel = new JLabel("How many of the required skills for the job above");
     kQuestionLabel2 = new JLabel("are acceptable to be missing by an applicant?");
     kQuestionPanel.add(kQuestionLabel);
     kQuestionPanel.add(kQuestionLabel2);
@@ -679,6 +932,11 @@ public class QueriesDemoGUI extends JFrame {
     String qualifiedPersonsQuery = "WITH required_ks AS(SELECT ks_code FROM jp_ks WHERE job_code = " + jobInfoTokens[1] + ")SELECT * FROM(SELECT p.person_id || ' ' || p.first_name || ' ' || p.last_name AS name, p.email_address, (SELECT COUNT(DISTINCT ks_code)FROM (SELECT ks_code FROM required_ks MINUS SELECT ks_code FROM person_ks pks WHERE pks.person_id = p.person_id)) as number_missing FROM person p) WHERE number_missing <= " + interestedKData + "ORDER BY number_missing ASC";
     ArrayList<String> queryResult = executeQuery(qualifiedPersonsQuery, 1);
 
+    lowerPanel = new JPanel();
+    exitButton = new JButton("Go back to select job");
+    exitButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(exitButton);
+
     qualifiedPersonsPanel = new JPanel();
     if(queryResult.size() == 0 ) {
       noResultsLabel = new JLabel("No persons meet the skill requirement for the selected job.");
@@ -690,15 +948,14 @@ public class QueriesDemoGUI extends JFrame {
         qualifiedPersonsView.addElement(aPerson);
       }
       qualifiedPersonsList = new JList<String>(qualifiedPersonsView);
+      qualifiedPersonsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
       qualifiedPersonsPanel.add(qualifiedPersonsList);
+
+      makeOfferButton = new JButton("Make selected person a job offer");
+      makeOfferButton.addActionListener(buttonClickHandler);
+      lowerPanel.add(makeOfferButton);
     }
     add(qualifiedPersonsPanel);
-
-    lowerPanel = new JPanel();
-    exitButton = new JButton("Go back to select job");
-    exitButton.addActionListener(buttonClickHandler);
-    lowerPanel.add(exitButton);
-
     add(lowerPanel);
 
     revalidate();
@@ -1031,7 +1288,7 @@ public class QueriesDemoGUI extends JFrame {
 
     getContentPane().removeAll();
     
-    
+    //TODOs
 
     revalidate();
     repaint();
@@ -1284,6 +1541,83 @@ public class QueriesDemoGUI extends JFrame {
         interestedPersonsData = (String)personsComboBox.getSelectedItem();
         drawPersonActionsScreen();
       }
+      else if(buttonThatWasClicked.getText() == "Add a new person") {
+        drawCreatePersonScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "Add person") {
+        String firstName = firstNameField.getText();
+        String lastName = lastNameField.getText();
+        String emailAddress = emailField.getText();
+        String state = "'" + stateField.getText() + "'";
+        // If non-nullable fields are left empty, do not accept this input
+        if(firstName.matches("") || lastName.matches("") || emailAddress.matches("") || state.length() > 4) {
+          JOptionPane.showMessageDialog(null, "Fields 'first name', 'last name', 'email address' must be given a value!!! State must be 2 letter abbreviation.");
+        }
+        else{
+          String middleName = "'" + middleNameField.getText() + "'";
+          if(middleName.matches("''")) {
+            middleName = null;
+          }
+          Integer streetNumber;
+          try {
+            streetNumber = Integer.parseInt(addyNumberField.getText());
+          }
+          catch(NumberFormatException e) {
+            streetNumber = null;
+          }
+          String streetName = "'" + addyNameField.getText() + "'";
+          if(streetName.matches("''")) {
+            streetName = null;
+          }
+          Integer aptNumber;
+          try {
+            aptNumber = Integer.parseInt(aptNumberField.getText());
+          }
+          catch(NumberFormatException e) {
+            aptNumber = null;
+          }
+          String city = "'" + cityField.getText() + "'";
+          if(city.matches("''")) {
+            city = null;
+          }
+          if(state.matches("''")) {
+            state = null;
+          }
+          Integer zipCode;
+          try {
+            zipCode = Integer.parseInt(zipcodeField.getText());
+          }
+          catch(NumberFormatException e) {
+            zipCode = null;
+          }
+          String gender = (String)genderComboBox.getSelectedItem();
+
+          int personId = nextDBIndex("person_id", "person");
+
+          String insertPersonStatement = "INSERT INTO person VALUES (" + personId + ", '" + firstName + "', "+ middleName + ", '" +lastName + "', '" + emailAddress + "', " + streetNumber + ", " + streetName + ", " + aptNumber + ", " + city + ", " + state + ", " + zipCode + ", '" + gender + "')";
+          ArrayList<String> insertionList = new ArrayList<>();
+          insertionList.add(insertPersonStatement);
+
+          executeDataManipulationStatement(insertionList);
+
+          personStore = new Person(personId, firstName, middleName, lastName, emailAddress, streetNumber, streetName, aptNumber, city, state, zipCode, gender);
+
+          System.out.println("person_id: " + personStore.getPerson_id());
+          System.out.println("first_name: " + personStore.getFirst_name());
+          System.out.println("last_name: " + personStore.getLast_name());
+          System.out.println("middle_name: " + personStore.getMiddle_name());
+          System.out.println("email_address: " + personStore.getEmail_address());
+          System.out.println("street_number: " + personStore.getStreet_number());
+          System.out.println("street_name: " + personStore.getStreet_name());
+          System.out.println("apt_number: " + personStore.getApt_number());
+          System.out.println("city: " + personStore.getCity());
+          System.out.println("state: " + personStore.getState());
+          System.out.println("zip_code: " + personStore.getZip_code());
+          System.out.println("gender: " + personStore.getGender());
+
+          drawSelectPersonScreen();
+        }
+      }
       else if(buttonThatWasClicked.getText() == "Go Back To Action Select Menu" || buttonThatWasClicked.getText() == "Return to job hunter menu") {
         drawPersonActionsScreen();
       }
@@ -1308,8 +1642,28 @@ public class QueriesDemoGUI extends JFrame {
         interestedKData = (Integer)kNumberComboBox.getSelectedItem();
         drawQualifiedPersonsScreen();
       }
+      else if(buttonThatWasClicked.getText() == "Make selected person a job offer") {
+        int selectedIndex = qualifiedPersonsList.getSelectedIndex();
+        String personToMakeOfferTo = qualifiedPersonsView.getElementAt(selectedIndex);
+        String[] personTokens = personToMakeOfferTo.split(" ");
+        String[] companyTokens = interestedCompanyData.split(" ");
+        //make update to job_application table
+        ArrayList<String> updateList = new ArrayList<>(1);
+        updateList.add("INSERT INTO job_application VALUES(" + nextDBIndex("application_id", "job_application") + ", " + personTokens[0] + ", " + companyTokens[0] + ", 'offered')");
+        executeDataManipulationStatement(updateList);
+        //remove list item from list
+        qualifiedPersonsView.remove(selectedIndex);
+
+      }
       else if(buttonThatWasClicked.getText() == "Job Assistance Services") {
         drawJobAssistanceServicesScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "Evaluate the opportunities in all business sectors" || buttonThatWasClicked.getText() == "Go back to select sector") {
+        drawSectorsOpportunitiesScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "Select this sector") {
+        interestedSector = (String)businessSectorsComboBox.getSelectedItem();
+        drawJobOpportunitiesScreen();
       }
       else if(buttonThatWasClicked.getText() == "Select company") {
         interestedCompanyData = (String)companiesComboBox.getSelectedItem();
@@ -1358,5 +1712,131 @@ public class QueriesDemoGUI extends JFrame {
         drawQueryPerformScreen(buttonThatWasClicked.getText());
       }
     }
+  }
+}
+
+class Person {
+  private int person_id;
+  private String first_name;
+  private String middle_name;
+  private String last_name;
+  private String email_address;
+  private Integer street_number;
+  private String street_name;
+  private Integer apt_number;
+  private String city;
+  private String state;
+  private Integer zip_code;
+  private String gender;
+
+  Person(int person_id, String first_name, String middle_name, String last_name, String email_address, Integer street_number, String street_name, Integer apt_number, String city, String state, Integer zip_code, String gender) {
+    this.person_id = person_id;
+    this.first_name = first_name;
+    this.middle_name = middle_name;
+    this.last_name = last_name;
+    this.email_address = email_address;
+    this.street_number = street_number;
+    this.street_name = street_name;
+    this.apt_number = apt_number;
+    this.city = city;
+    this.state = state;
+    this.zip_code = zip_code;
+    this.gender = gender;
+  }
+
+  void setPerson_id(int person_id) {
+    this.person_id = person_id;
+  }
+
+  int getPerson_id() {
+    return person_id;
+  }
+
+  void setFirst_name(String first_name) {
+    this.first_name = first_name;
+  }
+
+  String getFirst_name() {
+    return first_name;
+  }
+
+  void setMiddle_name(String middle_name) {
+    this.middle_name = middle_name;
+  }
+
+  String getMiddle_name() {
+    return middle_name;
+  }
+
+  void setLast_name(String last_name) {
+    this.last_name = last_name;
+  }
+
+  String getLast_name() {
+    return last_name;
+  }
+
+  void setEmail_address(String email_address) {
+    this.email_address = email_address;
+  }
+
+  String getEmail_address() {
+    return email_address;
+  }
+
+  void setStreet_number(Integer street_number) {
+    this.street_number = street_number;
+  }
+
+  Integer getStreet_number() {
+    return street_number;
+  }
+
+  void setStreet_name(String street_name) {
+    this.street_name = street_name;
+  }
+
+  String getStreet_name() {
+    return street_name;
+  }
+
+  void setApt_number(Integer apt_number) {
+    this.apt_number = apt_number;
+  }
+
+  Integer getApt_number() {
+    return apt_number;
+  }
+
+  void setCity(String city) {
+    this.city = city;
+  }
+
+  String getCity() {
+    return city;
+  }
+
+  void setState(String state) {
+    this.state = state;
+  }
+
+  String getState() {
+    return state;
+  }
+
+  void setZip_code(Integer zip_code) {
+    this.zip_code = zip_code;
+  }
+
+  Integer getZip_code() {
+    return zip_code;
+  }
+
+  void setGender(String gender) {
+    this.gender = gender;
+  }
+
+  String getGender() {
+    return gender;
   }
 }

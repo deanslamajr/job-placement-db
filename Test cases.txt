@@ -21,9 +21,8 @@ Apply for a job service
 		Drop all tables
 		load ApplyForAJobService_TestCase1.xsql
 		From main menu, navigate the following:
-			find a job
-			select person from list
-			select 1 athena mansell and click button 'select this person'
+			Worker Services
+			select '1 Athena Mansell' from combobox and click 'Select this person' button
 			see jobs this person qualifies for
 	Expected result:
 		should see a combobox with the following entries
@@ -37,9 +36,8 @@ Apply for a job service
 		Drop all tables
 		load ApplyForAJobService_TestCase1.xsql
 		From main menu, navigate the following:
-			find a job
-			select person from list
-			select 1 athena mansell and click button 'select this person'
+			Worker Services
+			select '1 Athena Mansell' from combobox and click 'Select this person' button
 			see jobs this person qualifies for
 	Expected result:
 			Athena does not currently qualify for any jobs
@@ -52,8 +50,7 @@ Accept a job offer service
 		Drop all tables
 		load AcceptAJobOfferService_TestCase1.xsql
 		From main menu, navigate the following:
-			Find a job
-			select person from list
+			Worker Services
 			select '1 Athena Mansell' from combobox and click 'Select this person' button
 			view current job offers
 	Expected result: 
@@ -68,8 +65,7 @@ Accept a job offer service
 		Drop all tables
 		load AcceptAJobOfferService_TestCase2.xsql
 		From main menu, navigate the following:
-			Find a job
-			select person from list
+			Worker Services
 			select '1 Athena Mansell' from combobox and click 'Select this person' button
 			view current job offers
 	Expected result:
@@ -83,8 +79,9 @@ Accept an applicant service
 		Drop all tables
 		load AcceptAnApplicantService_TestCase1.xsql
 		From main menu, navigate the following:
-			Accept an applicant
+			Manager Services
 			select company 'ATandT' from combobox and click button 'select company'
+			Accept an applicant
 	Expected result: 
 		combobox should contain the following entries:
 			1 Athena Mansell
@@ -94,16 +91,45 @@ Accept an applicant service
 		Drop all tables
 		load AcceptAnApplicantService_TestCase2.xsql
 		From main menu, navigate the following:
-			Accept an applicant
+			Manager Services
 			select either company from combobox and click button 'select company'
+			Accept an applicant
 	Expected result: 
 		"There are currently no applicants."
 
 Find the Right Person for a Job Service
 ------
 1. A job profile that requires skills A, B and C. Person1 has skills ABC, Person2 has skills AB, Person3 has skills A, Person4 has no skills.
+	Set up:
+		Drop all tables
+		load FindRightPersonForAJobService_TestCase1
+		From main menu, navigate the following:
+			Manager Services
+			select company '1 Nike' from combobox and click button 'select company'
+			Find the right person for a job profile
+			View Qualified Persons
+	Expected result: 
+		list box should contain the following entries:
+			1 Athena Mansell
+			2 Carley Maiorano
+2. A job profile that requires skills A, B, C, D, E, F, and G. Person1 has skills EFG, Person2 has skills FG, Person3 has skills G, Person4 has no skills.
+	Works on sql*plus, doesn't work with JDBC :(
 
-2. A job profile that requires skills A, B and C. Person1 has skills DEF, Person2 has skills DE, Person3 has skills D, Person4 has no skills.
+Evaluate the opportunities in all business sectors:
+------
+1. 3 sectors exist, each with 2 companies, each company has 2 jobs. Of the 2 jobs at each company, only one is available while the other has already been filled. Some of the available jobs have previously been filled but are once again open while others have never been worked before.
+	Set up:
+
+	Expected result:
+		Each sector should reveal having 2 jobs.
+
+2. 3 sectors exist, 1st sector has 1 company with 2 jobs with that are both already occupied, 2nd sector has 1 company with 0 jobs, and the 3rd sector has no companies.
+	Set up:
+
+	Expected result:
+		1st sector has 2 jobs
+		2nd sector has 0 jobs
+		3rd sector has 0 jobs
 
 Query 9:
 ------
