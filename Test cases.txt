@@ -154,6 +154,33 @@ Evaluate the opportunities in all business sectors:
 		2nd sector has 0 jobs
 		3rd sector has 0 jobs
 
+Training Optimization Service
+------
+1. Two job profiles exist, one has more job openings than the other.
+	Set up:
+		Drop all tables
+		load TrainingOptimizationService_TestCase1.xsql
+		From main menu, navigate the following:
+			Job assistance services
+			Training optimizations
+	Expected result
+		ENGL 1157
+		ENGL 1158
+		MATH 1126
+		MATH 2114
+		CSCI 1583
+		CSCI 1581
+
+1. One job profile exists, no job openings.
+	Set up:
+		Drop all tables
+		load TrainingOptimizationService_TestCase1.xsql
+		From main menu, navigate the following:
+			Job assistance services
+			Training optimizations
+	Expected result
+		"There are currently no course optimization available."
+
 
 QUERIES TEST CASES
 ##############

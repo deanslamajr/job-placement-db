@@ -1,0 +1,43 @@
+INSERT INTO job_profile VALUES(1, 'Retail Salesperson', 'Perform the function of a(n) retail salesperson')
+
+INSERT INTO knowledge_skill VALUES (1, 'C# Programming', 'Beginner understanding of C# Programming', 'beginner')
+INSERT INTO knowledge_skill VALUES (2, 'C# Programming', 'Intermediate understanding of C# Programming', 'intermediate')
+INSERT INTO knowledge_skill VALUES (3, 'C# Programming', 'Advanced understanding of C# Programming', 'advanced')
+
+INSERT INTO jp_ks VALUES(1, 1)
+INSERT INTO jp_ks VALUES(1, 2)
+INSERT INTO jp_ks VALUES(1, 3)
+
+INSERT INTO course VALUES (1, 'ENGL 1157', 'Intermediate English', 'intermediate', 'active', 451.74)
+INSERT INTO course VALUES (2, 'ENGL 1158', 'Beginner English', 'beginner', 'active', 434.8)
+INSERT INTO course VALUES (3, 'MATH 1126', 'Intermediate Mathmatics', 'intermediate', 'active', 1474.55)
+
+INSERT INTO course_ks VALUES(1, 1)
+INSERT INTO course_ks VALUES(2, 2)
+INSERT INTO course_ks VALUES(3, 3)
+
+INSERT INTO sector VALUES (1, 'Basic Materials')
+
+INSERT INTO company VALUES (1, 'ATandT', 'www.ATandT.com', 595, 'Leilani  ', 19, 'New York', 'NY', 8225843819, 1)
+
+INSERT INTO job VALUES(1, 1, 1, 'full-time', 'salary', 121440)
+INSERT INTO job VALUES(2, 1, 1, 'part-time', 'wage', 25.33)
+INSERT INTO job VALUES(3, 1, 1, 'full-time', 'wage', 36.19)
+
+INSERT INTO person VALUES (1, 'Abraham', NULL, 'Rosier', 'arosier@uno.edu', 804, 'Yu  ', NULL, 'New York', 'NY', 3551858113, NULL)
+INSERT INTO person VALUES (2, 'Adrianne', NULL, 'Mirabito', 'amirabito@uno.edu', 977, 'Anh  ', 6, 'Los Angeles', 'CA', 7393679022, 'm')
+INSERT INTO person VALUES (3, 'Alesia', NULL, 'Facey', 'afacey@uno.edu', 867, 'Cierra  ', NULL, 'Chicago', 'IL', 9185976023, 'm')
+
+INSERT INTO person_ks VALUES(1, 1)
+INSERT INTO person_ks VALUES(1, 2)
+INSERT INTO person_ks VALUES(1, 3)
+INSERT INTO person_ks VALUES(2, 1)
+INSERT INTO person_ks VALUES(2, 2)
+INSERT INTO person_ks VALUES(2, 3)
+INSERT INTO person_ks VALUES(3, 1)
+INSERT INTO person_ks VALUES(3, 2)
+INSERT INTO person_ks VALUES(3, 3)
+
+INSERT INTO works VALUES(1, 1, TO_DATE('12301899','MMDDYYYY') + 40619, NULL)
+INSERT INTO works VALUES(2, 2, TO_DATE('12301899','MMDDYYYY') + 40668, NULL)
+INSERT INTO works VALUES(3, 3, TO_DATE('12301899','MMDDYYYY') + 40412, NULL)

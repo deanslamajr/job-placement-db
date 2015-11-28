@@ -242,7 +242,7 @@ public class QueriesDemoGUI extends JFrame {
 
 
   public QueriesDemoGUI(String username, String password) {
-    super("QueriesDemoGUI");
+    super("Job Management Services");
 
     this.username = username;
     this.password = password;
@@ -307,6 +307,7 @@ public class QueriesDemoGUI extends JFrame {
 
     trainingOptimizationsPanel = new JPanel();
     trainingOptimizationsButton = new JButton("Training optimizations");
+    trainingOptimizationsButton.addActionListener(buttonClickHandler);
     trainingOptimizationsPanel.add(trainingOptimizationsButton);
     add(trainingOptimizationsPanel);
 
@@ -329,7 +330,7 @@ public class QueriesDemoGUI extends JFrame {
     add(mainTitle);
 
     lowerPanel = new JPanel();
-    exitButton = new JButton("Go Back To Main Menu");
+    exitButton = new JButton("Back to job assistance menu");
     exitButton.addActionListener(buttonClickHandler);
     lowerPanel.add(exitButton);
 
@@ -354,6 +355,42 @@ public class QueriesDemoGUI extends JFrame {
     }
     add(businessSectorsPanel);
 
+    add(lowerPanel);
+
+    revalidate();
+    repaint();
+  }
+
+  void drawTrainingOptimizationScreen() {
+    getContentPane().removeAll();
+
+    setLayout(new GridLayout( 3, 1) );
+
+    mainTitle = new JLabel("Classes that are commonly lacked by unqualified, unemployed persons");
+    add(mainTitle);
+
+    String trainingOptimizationsQuery = "WITH candidates AS (SELECT DISTINCT jp.job_code, COUNT(DISTINCT p.person_id) AS candidate_count FROM person p LEFT OUTER JOIN works w ON p.person_id = w.person_id, job_profile jp WHERE (w.job_id IS NULL OR w.end_date IS NULL OR w.end_date < SYSDATE) AND NOT EXISTS(SELECT jpks.ks_code FROM jp_ks jpks WHERE jpks.job_code = jp.job_code MINUS SELECT pks.ks_code FROM person_ks pks WHERE pks.person_id = p.person_id)GROUP BY jp.job_code),openings AS (SELECT DISTINCT j.job_code, COUNT(j.job_id) AS openings_count FROM job j LEFT OUTER JOIN works w ON j.job_id = w.job_id WHERE w.person_id IS NULL OR w.end_date < SYSDATE GROUP BY j.job_code),jp_info AS (SELECT o.job_code, o.openings_count - NVL(c.candidate_count,0) AS ratio FROM openings o LEFT OUTER JOIN candidates c ON o.job_code = c.job_code ),hiring AS (SELECT job_code FROM jp_info WHERE ratio = (SELECT MIN(ratio) FROM jp_info)),base_groups AS (SELECT RowNum AS g_id, c1.course_code AS cc1, c2.course_code AS cc2, c3.course_code AS cc3 FROM course c1, course c2, course c3 WHERE (c1.course_code <= c2.course_code AND c2.course_code = c3.course_code)OR (c1.course_code < c2.course_code AND c2.course_code < c3.course_code)),group_ks AS (SELECT g_id, cc1 AS course_code, ks_code FROM base_groups LEFT OUTER JOIN course_ks cks ON base_groups.cc1 = cks.course_code UNION SELECT g_id, cc2 AS course_code, ks_code FROM base_groups LEFT OUTER JOIN course_ks cks ON base_groups.cc2 = cks.course_code UNION SELECT g_id, cc3 AS course_code, ks_code FROM base_groups LEFT OUTER JOIN course_ks cks ON base_groups.cc3 = cks.course_code),group_cc AS (SELECT g_id, cc1 AS course_code FROM base_groups UNION SELECT g_id, cc2 AS course_code FROM base_groups UNION SELECT g_id, cc3 AS course_code FROM base_groups),matches AS (SELECT gks.g_id, COUNT(DISTINCT gks.course_code) AS course_count FROM group_ks gks, hiring h WHERE NOT EXISTS (SELECT jpks.ks_code FROM jp_ks jpks WHERE jpks.job_code = h.job_code MINUS (SELECT ks_code FROM group_ks gks2 WHERE gks.g_id = gks2.g_id UNION SELECT ks_code FROM hiring h LEFT OUTER JOIN jp_ks jpks ON h.job_code = jpks.job_code))GROUP BY gks.g_id)SELECT m.g_id, c.course_code, c.title FROM matches m LEFT OUTER JOIN group_cc gcc ON m.g_id = gcc.g_id LEFT OUTER JOIN course c ON gcc.course_code = c.course_code WHERE m.course_count = (SELECT MIN(course_count) FROM matches)";
+    ArrayList<String> queryResult = executeQuery(trainingOptimizationsQuery, 3);
+
+    jobOpportunitiesPanel = new JPanel();
+    if(queryResult.size() == 0 ) {
+      noResultsLabel = new JLabel("There are currently no course optimizations available.");
+      jobOpportunitiesPanel.add(noResultsLabel);
+    }
+    else {
+      jobOpportunitiesView = new DefaultListModel<String>();
+      for(String aJob: queryResult) {
+        jobOpportunitiesView.addElement(aJob);
+      }
+      jobOpportunitiesList = new JList<String>(jobOpportunitiesView);
+      jobOpportunitiesPanel.add(jobOpportunitiesList);
+    }
+    add(jobOpportunitiesPanel);
+
+    lowerPanel = new JPanel();
+    exitButton = new JButton("Back to job assistance menu");
+    exitButton.addActionListener(buttonClickHandler);
+    lowerPanel.add(exitButton);
     add(lowerPanel);
 
     revalidate();
@@ -841,9 +878,6 @@ public class QueriesDemoGUI extends JFrame {
       }
       rightPanel.add(applicantsComboBox);
 
-      showInfoButton = new JButton("Show applicant information");
-      rightPanel.add(showInfoButton);
-
       rejectButton = new JButton("Reject Applicant");
       rejectButton.addActionListener(buttonClickHandler);
       lowerPanel.add(rejectButton);
@@ -893,8 +927,6 @@ public class QueriesDemoGUI extends JFrame {
       seePersonsButton.addActionListener(buttonClickHandler);
       lowerPanel.add(seePersonsButton);
     }
-    createJobButton = new JButton("Create New Job");
-    jobSelectionPanel.add(createJobButton);
     add(jobSelectionPanel);
 
     kQuestionPanel = new JPanel();
@@ -1100,7 +1132,7 @@ public class QueriesDemoGUI extends JFrame {
   void updateDB() {
     getContentPane().removeAll();
 
-    setLayout(new GridLayout( 4, 1) );
+    setLayout(new GridLayout( 3, 1) );
 
     clearDataButton = new JButton("Drop all rows from all tables");
     clearDataButton.addActionListener(buttonClickHandler);
@@ -1109,10 +1141,6 @@ public class QueriesDemoGUI extends JFrame {
     customInsertionButton = new JButton("Execute an insertion script from file...");
     customInsertionButton.addActionListener(buttonClickHandler);
     add(customInsertionButton);
-
-    randomDataGenerationButton = new JButton("Generate random data for a table");
-    randomDataGenerationButton.addActionListener(buttonClickHandler);
-    add(randomDataGenerationButton);
 
     goBackButton = new JButton("Go Back To Options Menu");
     goBackButton.addActionListener(buttonClickHandler);
@@ -1655,11 +1683,14 @@ public class QueriesDemoGUI extends JFrame {
         qualifiedPersonsView.remove(selectedIndex);
 
       }
-      else if(buttonThatWasClicked.getText() == "Job Assistance Services") {
+      else if(buttonThatWasClicked.getText() == "Job Assistance Services" || buttonThatWasClicked.getText() == "Back to job assistance menu") {
         drawJobAssistanceServicesScreen();
       }
       else if(buttonThatWasClicked.getText() == "Evaluate the opportunities in all business sectors" || buttonThatWasClicked.getText() == "Go back to select sector") {
         drawSectorsOpportunitiesScreen();
+      }
+      else if(buttonThatWasClicked.getText() == "Training optimizations") {
+        drawTrainingOptimizationScreen();
       }
       else if(buttonThatWasClicked.getText() == "Select this sector") {
         interestedSector = (String)businessSectorsComboBox.getSelectedItem();
